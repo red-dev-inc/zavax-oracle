@@ -63,16 +63,7 @@ func (s *Service) GetBlock(_ *http.Request, args *GetBlockArgs, reply *GetBlockR
 	}
 
 	// Fill out the response with the block's data
-	reply.Timestamp = json.Uint64(block.Timestamp().Unix())
-	data := block.Data()
-	if len(data) != 0 {
-		zblock := ZcashBlock{}
-		err = ej.Unmarshal(data, &zblock)
-		reply.Data = zblock
-	}
-	reply.Height = json.Uint64(block.Hght)
-	reply.ID = block.ID()
-	reply.ParentID = block.Parent()
+	assignValues(reply, block)
 
 	return err
 }
@@ -81,35 +72,11 @@ type QueryDataArgs struct {
 	ID uint64 `json:"id"`
 }
 
-type QueryZcashBlockReply struct {
-	Hash               string       `json:"hash"`
-	Confirmations      int          `json:"confirmations"`
-	Size               int          `json:"size"`
-	Height             int          `json:"height"`
-	Version            int          `json:"version"`
-	MerkleRoot         string       `json:"merkleroot"`
-	BlockCommitments   string       `json:"blockcommitments"`
-	AuthDataRoot       string       `json:"authdataroot"`
-	FinalSaplingRoot   string       `json:"finalsaplingroot"`
-	ChainHistoryRoot   string       `json:"chainhistoryroot"`
-	Tx                 []string     `json:"tx"`
-	Time               int          `json:"time"`
-	Nonce              string       `json:"nonce"`
-	Solution           string       `json:"solution"`
-	Bits               string       `json:"bits"`
-	Difficulty         float64      `json:"difficulty"`
-	ChainWork          string       `json:"chainwork"`
-	Anchor             string       `json:"anchor"`
-	ChainSupply        ChainSupply  `json:"chainSupply"`
-	ValuePools         []ValuePool  `json:"valuePools"`
-	PreviousBlockHash  string       `json:"previousblockhash"`
-	NextBlockHash      string       `json:"nextblockhash"`
-}
 
 
 // GetBlock gets the block whose ID is [args.ID]
 // If [args.ID] is empty, get the latest block
-func (s *Service) GetBlockByHeight(_ *http.Request, args *QueryDataArgs, reply *QueryZcashBlockReply) error {
+func (s *Service) GetBlockByHeight(_ *http.Request, args *QueryDataArgs, reply *GetBlockReply) error {
 
 	var (
 		id  uint64
@@ -121,8 +88,12 @@ func (s *Service) GetBlockByHeight(_ *http.Request, args *QueryDataArgs, reply *
 		id = args.ID
 	}
 
-	block := s.vm.getBlockByHeight(id)
-	if block.Height ==  0 {
+	block, err := s.vm.getBlockByHeight(id)
+	if err != nil {
+		fmt.Printf("Error in finding getBlockByHeight : %+v\n", err)
+	}
+
+	if block ==  nil {
 		// Get the block from the database
 		resp, err := s.vm.queryData(id)
 
@@ -137,8 +108,8 @@ func (s *Service) GetBlockByHeight(_ *http.Request, args *QueryDataArgs, reply *
 				return errNoSuchBlock
 			}
 		}
-		// Assign values from resp to reply
-		assignValues(reply, resp)
+		
+		
 		return err
 
 	} else {	
@@ -150,27 +121,17 @@ func (s *Service) GetBlockByHeight(_ *http.Request, args *QueryDataArgs, reply *
 	
 }
 
-func assignValues(reply *QueryZcashBlockReply, resp ZcashBlock) {
-    reply.Hash = resp.Hash
-    reply.Confirmations = resp.Confirmations
-    reply.Size = resp.Size
-    reply.Height = resp.Height
-    reply.Version = resp.Version
-    reply.MerkleRoot = resp.MerkleRoot
-    reply.BlockCommitments = resp.BlockCommitments
-    reply.AuthDataRoot = resp.AuthDataRoot
-    reply.FinalSaplingRoot = resp.FinalSaplingRoot
-    reply.ChainHistoryRoot = resp.ChainHistoryRoot
-    reply.Tx = resp.Tx
-    reply.Time = resp.Time
-    reply.Nonce = resp.Nonce
-    reply.Solution = resp.Solution
-    reply.Bits = resp.Bits
-    reply.Difficulty = resp.Difficulty
-    reply.ChainWork = resp.ChainWork
-    reply.Anchor = resp.Anchor
-    reply.ChainSupply = resp.ChainSupply
-    reply.ValuePools = resp.ValuePools
-    reply.PreviousBlockHash = resp.PreviousBlockHash
-    reply.NextBlockHash = resp.NextBlockHash
+func assignValues(reply *GetBlockReply, block *Block) {
+
+	// Fill out the response with the block's data
+	reply.Timestamp = json.Uint64(block.Timestamp().Unix())
+	data := block.Data()
+	if len(data) != 0 {
+		zblock := ZcashBlock{}
+		ej.Unmarshal(data, &zblock)
+		reply.Data = zblock
+	}
+	reply.Height = json.Uint64(block.Hght)
+	reply.ID = block.ID()
+	reply.ParentID = block.Parent()
 }

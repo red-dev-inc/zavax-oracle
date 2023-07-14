@@ -433,6 +433,6 @@ func (vm *VM) queryData(ID uint64) (ZcashBlock, error) {
     return vm.state.QueryData(ID)
 }
 
-func (vm *VM) getBlockByHeight(ID uint64) (ZcashBlock) {
+func (vm *VM) getBlockByHeight(ID uint64) (*Block, error) {
     return vm.state.GetBlockByHeight(ID)
 }

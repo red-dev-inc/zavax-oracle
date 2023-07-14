@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 2rem;
+  color: #56575acc;
+}
+
+.mainTitle{
+  color: #EE3938;
+  font-size: 4.5rem;
+  font-weight: bold;
+}
+
+.logo {
+  height: 12rem;
+}
+
+.mainDescription{
+  color: #56575abb;
+}
+
+.mainLabel {
+  font-weight: 500;
+  color: #78797Bcc;
+}
+
+.custom-submit-button{  
+  background-color: #EE3938;
+  border: 1px solid #EE3938;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  font-size: 1.7rem;
+  margin-bottom: 3rem;
+}
+
+.custom-submit-button:hover{  
+  background-color: #EE3938;
+  border: 1px solid #EE3938;
+}
+
+.color-borders{
+  border-color: #EE3938;
+  border-width: 2px;
+  border-radius: 5px;
+}
+
+.custon-input-size{
+  width:220px;
+  font-size: 1.7rem;
+  color: #56575acc;
+  margin-bottom: 2rem;
+}
+
+.custom-color-text-selector{
+  color:#EE3938;
+  font-size: 1.7rem;
+  margin-bottom: 2rem;
+}
+
+.form-padding{
+  padding: 0;
+}
+
+.custom-textarea{
+  resize: none;
+  padding: 0.5rem;
+}
+
+.block-data {
+  font-weight: 500;
+  color: #78797Bcc;
+  margin-bottom: 4rem;
+}
+
+.footer-link {
+  color: #EE3938;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  html {
+    font-size: 45%;
+  }
+
+  .mainTitle{
+    font-size: 3.8rem;
+  }
+}
+
+
+.textarea-container {
+  position: relative;
+}
+
+textarea {
+  width: 100%;
+  padding: 8px;
+  resize: vertical;
+}
+
+.loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader {
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

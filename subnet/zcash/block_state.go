@@ -76,7 +76,7 @@ type ZcashBlock struct {
 // BlockState defines methods to manage state with Blocks and LastAcceptedIDs.
 type BlockState interface {
 	GetBlock(blkID ids.ID) (*Block, error)
-	GetBlockByHeight(ID uint64)(ZcashBlock)
+	GetBlockByHeight(ID uint64)(*Block, error)
 	PutBlock(blk *Block) error
 	GetLastAccepted() (ids.ID, error)
 	SetLastAccepted(ids.ID) error
@@ -220,7 +220,7 @@ func (s *blockState) SetLastAccepted(lastAccepted ids.ID) error {
 
 
 
-func (s *blockState) GetBlockByHeight(hgt uint64) (ZcashBlock) {	
+func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {	
 
 	expectedHeight := hgt
 	result := 0
@@ -231,7 +231,7 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (ZcashBlock) {
 	fmt.Printf("GetLastAccepted: %+v\n",id)
 	zblock := ZcashBlock{}
 	if err != nil {
-		return zblock
+		return nil, err
 	}
 
 	for int(expectedHeight) != result {
@@ -239,18 +239,23 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (ZcashBlock) {
 		fmt.Printf("fetching last id: %+v\n",id)
 		block, err := s.vm.getBlock(id)
 		if err != nil {
-			return ZcashBlock{}
+			return nil, err
 		}
 		// Convert JSON to struct
-		err = json.Unmarshal(block.Dt, &zblock)
-		if err != nil {
-			return ZcashBlock{}
+		data := block.Data()
+		if len(data) != 0 {
+			json.Unmarshal(data, &zblock)
+			result = zblock.Height
 		}
-
-		id = block.PrntID
-		result = zblock.Height
+		id = block.PrntID			
 		fmt.Printf("id: %+v\n",id)
 		fmt.Printf("result: %+v\n",result)
+
+		if int(expectedHeight) == result {
+			fmt.Printf("Block height matched %+v\n",int(expectedHeight) == result)
+			return block, nil
+		}
+		
 		if block.Hght == 0 {
 			fmt.Printf("Block height is 0 hence break loop %+v\n",block.Hght)
 			break
@@ -261,10 +266,10 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (ZcashBlock) {
 	fmt.Printf("final result: %+v\n",result)
 	if int(expectedHeight) != result {
 		fmt.Printf("final not match: %+v\n",result)
-		return  ZcashBlock{}
+		return  nil, nil
 	}
 
-	return zblock
+	return nil, nil
 }
 
 // GetBlock gets Block from either cache or database

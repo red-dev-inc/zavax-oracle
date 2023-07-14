@@ -16,7 +16,7 @@ type Client interface {
 	// GetBlock fetches the contents of a block
 	GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zcash.ZcashBlock, uint64, ids.ID, ids.ID, error)
 
-	GetBlockByHeight(ctx context.Context, blockID uint64) (string, uint64, uint64, uint64, error)
+	GetBlockByHeight(ctx context.Context, blockID uint64) (uint64, zcash.ZcashBlock, uint64, ids.ID, ids.ID, error)
 
 }
 
@@ -45,16 +45,15 @@ func (cli *client) GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zcash
 	return uint64(resp.Timestamp), resp.Data, uint64(resp.Height), resp.ID, resp.ParentID, nil
 }
 
-func (cli *client) GetBlockByHeight(ctx context.Context, id uint64) (string, uint64, uint64,  uint64, error) {
-	resp := new(zcash.QueryZcashBlockReply)
+func (cli *client) GetBlockByHeight(ctx context.Context, id uint64) (uint64, zcash.ZcashBlock, uint64, ids.ID, ids.ID, error) {
+	resp := new(zcash.GetBlockReply)
 	err := cli.req.SendRequest(ctx,
 		"zcash.getBlockByHeight",
 		&zcash.QueryDataArgs{ID: id},
 		resp,
 	)
-	if err != nil {
-		return  "", 0, 0, 0, err
+	if err != nil {		
 	}
 
-	return resp.Hash, uint64(resp.Confirmations), uint64(resp.Size),  uint64(resp.Height), nil
+	return uint64(resp.Timestamp), resp.Data, uint64(resp.Height), resp.ID, resp.ParentID, nil
 }
