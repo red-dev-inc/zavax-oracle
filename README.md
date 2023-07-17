@@ -1,4 +1,4 @@
-# ZavaX a Avalanche Custom Zcash Virtual Machine
+# ZavaX: A Zcash Oracle using an Avalanche Custom Virtual Machine
 
 ## Getting started
 
