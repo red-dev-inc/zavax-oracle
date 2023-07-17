@@ -1,7 +1,7 @@
 // Copyright (C) 2019-2023, Ava Labs, Inc. All rights reserved.
 // See the file LICENSE for licensing terms.
 
-package zcash
+package zavax
 
 import (
 	"context"
@@ -27,7 +27,7 @@ import (
 
 const (
 	DataLen        = 32
-	Name           = "zcash"
+	Name           = "zavax"
 	MaxMempoolSize = 4096
 )
 
@@ -93,10 +93,10 @@ func (vm *VM) Initialize(
 ) error {
 	version, err := vm.Version(ctx)
 	if err != nil {
-		log.Error("error initializing Zcash VM: %v", err)
+		log.Error("error initializing ZavaX VM: %v", err)
 		return err
 	}
-	log.Info("Initializing Zcash VM", "Version", version)
+	log.Info("Initializing ZavaX VM", "Version", version)
 
 	vm.dbManager = dbManager
 	vm.snowCtx = snowCtx
@@ -147,7 +147,7 @@ func (vm *VM) initGenesis(genesisData []byte) error {
 	log.Debug("genesis", "data", genesisDataArr)
 
 	// Create the genesis block
-	// Zcash of genesis block is 0. It has no parent.
+	// ZavaX of genesis block is 0. It has no parent.
 	genesisBlock, err := vm.NewBlock(ids.Empty, 0, genesisDataArr, time.Unix(0, 0))
 	if err != nil {
 		log.Error("error while creating genesis block: %v", err)
@@ -429,8 +429,8 @@ func (*VM) CrossChainAppResponse(_ context.Context, _ ids.ID, _ uint32, _ []byte
 	return nil
 }
 
-func (vm *VM) queryData(ID uint64) (ZcashBlock, error) {
-    return vm.state.QueryData(ID)
+func (vm *VM) queryZcashBlock(ID uint64) (*ZcashBlock, error) {
+    return vm.state.QueryZcashBlock(ID)
 }
 
 func (vm *VM) getBlockByHeight(ID uint64) (*Block, error) {

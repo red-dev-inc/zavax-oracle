@@ -32,7 +32,7 @@ const Home: React.FC = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        setLatestBlock(data?.result?.height ?? null)
+        setLatestBlock(data?.result?.height ?? "")
       })
       .catch((error) => {
         // Handle any errors here
@@ -45,7 +45,7 @@ const Home: React.FC = () => {
   const queryZcashBlock = () => {
     reset()
     setIsLoading(true);
-    setCurlScript(`curl -X POST --data '{ "jsonrpc": "2.0", "method": "zcash.getBlockByHeight", "params": { "id": ${Number(queryBlock)} }, "id": 1 }'   -H 'content-type:application/json;' ${selectedNode}`)
+    setCurlScript(`curl --cacert ./certs/zavax-oracle-cert.pem -X POST --data '{ "jsonrpc": "2.0", "method": "zavax.getBlockByHeight", "params": { "id": ${Number(queryBlock)} }, "id": 1 }'   -H 'content-type:application/json;' ${selectedNode}`)
     fetch('/api/block',
       {
         method: "POST",
@@ -122,7 +122,7 @@ const Home: React.FC = () => {
           }}
         />
         <Button
-          id="query-zcash"
+          id="query-zavax"
           text={`Submit to ZavaX`}
           className={`custom-submit-button btn btn-danger`}
           onClick={queryZcashBlock}
@@ -138,6 +138,7 @@ const Home: React.FC = () => {
           className={`color-borders custom-textarea col-sm-12`}
           rows={6}
           content={curlScript}
+          readonly={true}
         />
       </div>
 
@@ -148,6 +149,7 @@ const Home: React.FC = () => {
           className={`color-borders custom-textarea col-sm-12`}
           rows={12}
           content={queryResponse}
+          readonly={true}
         />   
         {isLoading && (
         <div className="loader-overlay">

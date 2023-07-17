@@ -8,15 +8,15 @@ import (
 
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/utils/rpc"
-	"github.com/tamil-reddev/zcash-oracle/zcash"
+	"github.com/red-dev-inc/zavax-oracle/tree/main/subnet/zavax"
 )
 
-// Client defines zcash client operations.
+// Client defines zavax client operations.
 type Client interface {
 	// GetBlock fetches the contents of a block
-	GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zcash.ZcashBlock, uint64, ids.ID, ids.ID, error)
+	GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zavax.ZcashBlock, uint64, ids.ID, ids.ID, error)
 
-	GetBlockByHeight(ctx context.Context, blockID uint64) (uint64, zcash.ZcashBlock, uint64, ids.ID, ids.ID, error)
+	GetBlockByHeight(ctx context.Context, blockID uint64) (uint64, zavax.ZcashBlock, uint64, ids.ID, ids.ID, error)
 
 }
 
@@ -31,11 +31,11 @@ type client struct {
 }
 
 
-func (cli *client) GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zcash.ZcashBlock, uint64, ids.ID, ids.ID, error) {
-	resp := new(zcash.GetBlockReply)
+func (cli *client) GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zavax.ZcashBlock, uint64, ids.ID, ids.ID, error) {
+	resp := new(zavax.GetBlockReply)
 	err := cli.req.SendRequest(ctx,
-		"zcash.getBlock",
-		&zcash.GetBlockArgs{ID: blockID},
+		"zavax.getBlock",
+		&zavax.GetBlockArgs{ID: blockID},
 		resp,
 	)
 
@@ -45,11 +45,11 @@ func (cli *client) GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zcash
 	return uint64(resp.Timestamp), resp.Data, uint64(resp.Height), resp.ID, resp.ParentID, nil
 }
 
-func (cli *client) GetBlockByHeight(ctx context.Context, id uint64) (uint64, zcash.ZcashBlock, uint64, ids.ID, ids.ID, error) {
-	resp := new(zcash.GetBlockReply)
+func (cli *client) GetBlockByHeight(ctx context.Context, id uint64) (uint64, zavax.ZcashBlock, uint64, ids.ID, ids.ID, error) {
+	resp := new(zavax.GetBlockReply)
 	err := cli.req.SendRequest(ctx,
-		"zcash.getBlockByHeight",
-		&zcash.QueryDataArgs{ID: id},
+		"zavax.getBlockByHeight",
+		&zavax.QueryDataArgs{ID: id},
 		resp,
 	)
 	if err != nil {		

@@ -1,4 +1,4 @@
-module github.com/tamil-reddev/zcash-oracle
+module github.com/red-dev-inc/zavax-oracle/tree/main/subnet
 
 go 1.19
 

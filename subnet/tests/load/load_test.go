@@ -24,7 +24,7 @@ import (
 
 func TestLoad(t *testing.T) {
 	gomega.RegisterFailHandler(ginkgo.Fail)
-	ginkgo.RunSpecs(t, "zcash load test suites")
+	ginkgo.RunSpecs(t, "zavax load test suites")
 }
 
 var (
@@ -44,7 +44,7 @@ var (
 	// Comma separated list of client URIs
 	// If the length is non-zero, this will skip using the network runner to start and stop a network.
 	commaSeparatedClientURIs string
-	// Specifies the full zcash client URIs to use for load test.
+	// Specifies the full zavax client URIs to use for load test.
 	// Populated in BeforeSuite
 	clientURIs []string
 
@@ -128,11 +128,11 @@ func init() {
 		&commaSeparatedClientURIs,
 		"client-uris",
 		"",
-		"Specifies a comma separated list of full zcash client URIs to use in place of orchestrating a network. (Ex. 127.0.0.1:9650/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc,127.0.0.1:9652/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc",
+		"Specifies a comma separated list of full zavax client URIs to use in place of orchestrating a network. (Ex. 127.0.0.1:9650/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc,127.0.0.1:9652/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc",
 	)
 }
 
-const vmName = "zcash"
+const vmName = "zavax"
 
 var vmID ids.ID
 
@@ -149,7 +149,7 @@ func init() {
 
 var (
 	cli               runner_sdk.Client
-	zcashRPCEps []string
+	zavaxRPCEps []string
 )
 
 var _ = ginkgo.BeforeSuite(func() {
@@ -224,7 +224,7 @@ var _ = ginkgo.BeforeSuite(func() {
 		break
 	}
 
-	zcashRPCEps = make([]string, 0)
+	zavaxRPCEps = make([]string, 0)
 
 	// wait up to 5-minute for custom VM installation
 	outf("\n{{magenta}}waiting for all custom VMs to report healthy...{{/}}\n")
@@ -248,7 +248,7 @@ done:
 		for _, v := range resp.ClusterInfo.CustomChains {
 			if v.VmId == vmID.String() {
 				blockchainID = v.ChainId
-				outf("{{blue}}zcash is ready:{{/}} %+v\n", v)
+				outf("{{blue}}zavax is ready:{{/}} %+v\n", v)
 				break done
 			}
 		}
@@ -289,7 +289,7 @@ var _ = ginkgo.AfterSuite(func() {
 })
 
 // Tests only assumes that [clientURIs] has been populated by BeforeSuite
-var _ = ginkgo.Describe("[ProposeBlock]", func() {
+var _ = ginkgo.Describe("[GetBlockByHeight]", func() {
 	ginkgo.It("load test", func() {
 		workers := newLoadWorkers(clientURIs, blockchainID)
 

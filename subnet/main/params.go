@@ -6,7 +6,7 @@ package main
 import (
 	"flag"
 
-	"github.com/tamil-reddev/zcash-oracle/zcash"
+	"github.com/red-dev-inc/zavax-oracle/tree/main/subnet/zavax"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -16,7 +16,7 @@ const (
 )
 
 func buildFlagSet() *flag.FlagSet {
-	fs := flag.NewFlagSet(zcash.Name, flag.ContinueOnError)
+	fs := flag.NewFlagSet(zavax.Name, flag.ContinueOnError)
 
 	fs.Bool(versionKey, false, "If true, prints Version and quit")
 

@@ -16,21 +16,21 @@ if ! [[ "$0" =~ scripts/tests.load.sh ]]; then
   exit 255
 fi
 
-# ZCASH root directory
-ZCASH_PATH=$(
+# ZAVAX root directory
+ZAVAX_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   cd .. && pwd
 )
 TERMINAL_HEIGHT=${TERMINAL_HEIGHT:-'1000000'}
 
 # Load the versions
-source "$ZCASH_PATH"/scripts/versions.sh
+source "$ZAVAX_PATH"/scripts/versions.sh
 
 # PWD is used in the avalanchego build script so we use a different var
 PPWD=$(pwd)
 ############################
 echo "building avalanchego"
-ROOT_PATH=/tmp/zcash-load
+ROOT_PATH=/tmp/zavax-load
 rm -rf ${ROOT_PATH}
 mkdir ${ROOT_PATH}
 cd ${ROOT_PATH}
@@ -46,13 +46,13 @@ git checkout ${avalanche_version}
 cd ${PPWD}
 
 ############################
-echo "building zcash"
+echo "building zavax"
 BUILD_PATH=${ROOT_PATH}/avalanchego/build
 PLUGINS_PATH=${BUILD_PATH}/plugins
 
 # previous binary already deleted in last build phase
 go build \
-  -o ${PLUGINS_PATH}/vuF4cW6EQEknhDU36Q976iZoNWNkkbDEM87jasYF5JrCdUJan \
+  -o ${PLUGINS_PATH}/vu3xjfNfwJcNq1c4yFzvjF2hz6t2HZ4uHaWWQJvo27oyF6czX \
   ./main/
 
 ############################
@@ -126,4 +126,4 @@ echo "running load tests"
 echo "network-runner RPC server was running on PID ${PID} as test mode; terminating the process..."
 pkill -P ${PID} || true
 kill -2 ${PID} || true
-pkill -9 -f vuF4cW6EQEknhDU36Q976iZoNWNkkbDEM87jasYF5JrCdUJan || true # in case pkill didn't work
+pkill -9 -f vu3xjfNfwJcNq1c4yFzvjF2hz6t2HZ4uHaWWQJvo27oyF6czX || true # in case pkill didn't work

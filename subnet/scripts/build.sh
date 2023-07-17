@@ -16,8 +16,8 @@ export CGO_CFLAGS="-O -D__BLST_PORTABLE__"
 # Set the PATHS
 GOPATH="$(go env GOPATH)"
 
-# zcash root directory
-ZCASH_PATH=$(
+# zavax root directory
+ZAVAX_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")"
     cd .. && pwd
 )
@@ -28,12 +28,12 @@ binary_directory="$GOPATH/src/github.com/ava-labs/avalanchego/build/plugins"
 if [[ $# -eq 1 ]]; then
     binary_directory=$1
 elif [[ $# -eq 0 ]]; then
-    binary_directory="$GOPATH/src/github.com/ava-labs/avalanchego/build/vuF4cW6EQEknhDU36Q976iZoNWNkkbDEM87jasYF5JrCdUJan"
+    binary_directory="$GOPATH/src/github.com/ava-labs/avalanchego/build/vu3xjfNfwJcNq1c4yFzvjF2hz6t2HZ4uHaWWQJvo27oyF6czX"
 else
-    echo "Invalid arguments to build zcash. Requires either no arguments (default) or one arguments to specify binary location."
+    echo "Invalid arguments to build zavax. Requires either no arguments (default) or one arguments to specify binary location."
     exit 1
 fi
 
-# Build zcash, which is run as a subprocess
-echo "Building zcash in $binary_directory"
+# Build zavax, which is run as a subprocess
+echo "Building zavax in $binary_directory"
 go build -o "$binary_directory" "main/"*.go

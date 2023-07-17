@@ -13,7 +13,7 @@ app.post("/api/height", async (req, res) => {
     const url = req.body.node;
     const requestBody = {
       jsonrpc: "2.0",
-      method: "zcash.getBlock",
+      method: "zavax.getBlock",
       params: {},
       id: 1,
     };
@@ -32,7 +32,7 @@ const getBlockHeight = async (req) => {
   const url = node;
   const requestBody = {
     jsonrpc: "2.0",
-    method: "zcash.getBlockByHeight",
+    method: "zavax.getBlockByHeight",
     params: {
       id: block,
     },
@@ -54,6 +54,7 @@ app.post("/api/block", async (req, res) => {
     let response;
     for (let i = 0; i < 12; i++) {
       response = await getBlockHeight(req.body);
+      if (response?.data?.error) break;
       if (response?.data?.result?.data?.height === req.body.block) {
         break;
       } else {

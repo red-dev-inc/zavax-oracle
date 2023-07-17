@@ -13,7 +13,7 @@ import (
 	"github.com/ava-labs/avalanchego/utils/logging"
 	"github.com/ava-labs/avalanchego/utils/ulimit"
 	"github.com/ava-labs/avalanchego/vms/rpcchainvm"
-	"github.com/tamil-reddev/zcash-oracle/zcash"
+	"github.com/red-dev-inc/zavax-oracle/tree/main/subnet/zavax"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	}
 	// Print VM ID and exit
 	if version {
-		fmt.Printf("%s@%s\n", zcash.Name, zcash.Version)
+		fmt.Printf("%s@%s\n", zavax.Name, zavax.Version)
 		os.Exit(0)
 	}
 
@@ -35,7 +35,7 @@ func main() {
 
 	log.Root().SetHandler(log.LvlFilterHandler(log.LvlInfo, log.StreamHandler(os.Stderr, log.TerminalFormat())))
 
-	err = rpcchainvm.Serve(context.Background(), &zcash.VM{})
+	err = rpcchainvm.Serve(context.Background(), &zavax.VM{})
 	if err != nil {
 		fmt.Printf("failed to serve due to: %s", err)
 		os.Exit(1)

@@ -1,7 +1,7 @@
 // Copyright (C) 2019-2023, Ava Labs, Inc. All rights reserved.
 // See the file LICENSE for licensing terms.
 
-package zcash
+package zavax
 
 import (
 	"github.com/ava-labs/avalanchego/cache"
@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"fmt"
+	"errors"
 )
 
 const (
@@ -27,6 +28,12 @@ const (
 
 // persists lastAccepted block IDs with this key
 var lastAcceptedKey = []byte{lastAcceptedByte}
+
+
+var (
+	errBlockHeightNotFound     = errors.New("The zavax block height is not found")
+)
+
 
 var _ BlockState = &blockState{}
 
@@ -80,7 +87,7 @@ type BlockState interface {
 	PutBlock(blk *Block) error
 	GetLastAccepted() (ids.ID, error)
 	SetLastAccepted(ids.ID) error
-	QueryData(ID uint64) (ZcashBlock, error)
+	QueryZcashBlock(ID uint64) (*ZcashBlock, error)
 }
 
 // blockState implements BlocksState interface with database and cache.
@@ -273,11 +280,11 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 }
 
 // GetBlock gets Block from either cache or database
-func (s *blockState) QueryData(ID uint64) (ZcashBlock, error) {	
+func (s *blockState) QueryZcashBlock(ID uint64) (*ZcashBlock, error) {	
 
 	url := "http://127.0.0.1:8232/"
 	
-	hash := getZcashHash(ID)
+	hash, err := getZcashHash(ID)
 	payload := map[string]interface{}{
 		"jsonrpc": "1.0",
 		"id":      "curltest",
@@ -285,17 +292,17 @@ func (s *blockState) QueryData(ID uint64) (ZcashBlock, error) {
 		"params":  []interface{}{hash},
 	}
 
-	if hash == "" {
-		return ZcashBlock{}, nil
+	if err != nil {
+		return nil, errBlockHeightNotFound
 	}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		return ZcashBlock{}, err
+		return nil, err
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
-		return ZcashBlock{}, err
+		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "text/plain")
@@ -304,21 +311,21 @@ func (s *blockState) QueryData(ID uint64) (ZcashBlock, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return ZcashBlock{}, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return ZcashBlock{}, err
+		return nil, err
 	}
 
 	var responseData struct {
-		Result ZcashBlock `json:"result"`
+		Result *ZcashBlock `json:"result"`
 	}
 	err = json.Unmarshal(respBody, &responseData)
 	if err != nil {
-		return ZcashBlock{}, err
+		return nil, err
 	}
 
 	block := responseData.Result
@@ -327,7 +334,7 @@ func (s *blockState) QueryData(ID uint64) (ZcashBlock, error) {
 }
 
 
-func getZcashHash(hgt uint64) (string){
+func getZcashHash(hgt uint64) (string, error){
 
 	url := "http://127.0.0.1:8232/"
 
@@ -340,12 +347,12 @@ func getZcashHash(hgt uint64) (string){
 
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		return "" 
+		return "", errBlockHeightNotFound 
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
-		return ""
+		return "", errBlockHeightNotFound
 	}
 
 	req.Header.Set("Content-Type", "text/plain")
@@ -354,13 +361,13 @@ func getZcashHash(hgt uint64) (string){
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return ""
+		return "", errBlockHeightNotFound
 	}
 	defer resp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return ""
+		return "", errBlockHeightNotFound
 	}
 
 	var responseData struct {
@@ -368,12 +375,14 @@ func getZcashHash(hgt uint64) (string){
 	}
 	err = json.Unmarshal(respBody, &responseData)
 	if err != nil {
-		return ""
+		return "", errBlockHeightNotFound
 	}
 
 	hash := responseData.Result
-
-	return hash
+	if hash == "" {
+		return "", errBlockHeightNotFound
+	}
+	return hash, nil
 
 }
 

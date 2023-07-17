@@ -26,7 +26,7 @@ const Selector: React.FC<SelectorProps> = ({
             name={name}
             defaultValue=""
         >
-            <option key={0} value={0}>Select a node to query</option>
+            <option key={0} value={""}>Select a node to query</option>
             {nodes.map((node) => (
                 <option key={node.id} value={node.ip}>
                     {node.node}

@@ -1,7 +1,7 @@
 // Copyright (C) 2019-2023, Ava Labs, Inc. All rights reserved.
 // See the file LICENSE for licensing terms.
 
-package zcash
+package zavax
 
 import (
 	"context"
@@ -61,7 +61,7 @@ func TestHappyPath(t *testing.T) {
 	require.NoError(vm.SetPreference(ctx, genesisBlock.ID()))
 
 	snowCtx.Lock.Lock()
-	vm.proposeBlock([DataLen]byte{0, 0, 0, 0, 1}) // propose a value
+	vm.GetBlockByHeight([]byte{0, 0, 0, 0, 1}) // propose a value
 	snowCtx.Lock.Unlock()
 
 	select { // require there is a pending tx message to the engine
@@ -93,7 +93,7 @@ func TestHappyPath(t *testing.T) {
 	require.Equal(snowmanBlock2.ID(), block2.ID())
 	require.NoError(block2.Verify(ctx))
 
-	vm.proposeBlock([DataLen]byte{0, 0, 0, 0, 2}) // propose a block
+	vm.proposeBlock([]byte{0, 0, 0, 0, 2}) // propose a block
 	snowCtx.Lock.Unlock()
 
 	select { // verify there is a pending tx message to the engine

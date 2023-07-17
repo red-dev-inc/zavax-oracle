@@ -7,22 +7,22 @@ import (
 	"context"
 
 	"github.com/ava-labs/avalanchego/ids"
-	"github.com/ava-labs/avalanchego/utils/formatting"
-	"github.com/tamil-reddev/zcash-oracle/zcash"
+	"github.com/red-dev-inc/zavax-oracle/tree/main/subnet/zavax"
 )
 
-// Client defines zcash client operations.
+// Client defines zavax client operations.
 type Client interface {
-	// ProposeBlock submits data for a block
-	ProposeBlock(ctx context.Context, data [zcash.DataLen]byte) (bool, error)
-
 	// GetBlock fetches the contents of a block
-	GetBlock(ctx context.Context, blockID *ids.ID) (uint64, [zcash.DataLen]byte, uint64, ids.ID, ids.ID, error)
+	GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zavax.ZcashBlock, uint64, ids.ID, ids.ID, error)
+
+	GetBlockByHeight(ctx context.Context, blockID uint64) (uint64, zavax.ZcashBlock, uint64, ids.ID, ids.ID, error)
+
 }
+
 
 // New creates a new client object.
 func New(uri string) Client {
-	req := NewEndpointRequester(uri, "zcash")
+	req := NewEndpointRequester(uri, "zavax")
 	return &client{req: req}
 }
 
@@ -30,37 +30,30 @@ type client struct {
 	req *EndpointRequester
 }
 
-func (cli *client) ProposeBlock(ctx context.Context, data [zcash.DataLen]byte) (bool, error) {
-	bytes, err := formatting.Encode(formatting.Hex, data[:])
-	if err != nil {
-		return false, err
-	}
-
-	resp := new(zcash.ProposeBlockReply)
-	err = cli.req.SendRequest(ctx,
-		"proposeBlock",
-		&zcash.ProposeBlockArgs{Data: bytes},
-		resp,
-	)
-	if err != nil {
-		return false, err
-	}
-	return resp.Success, nil
-}
-
-func (cli *client) GetBlock(ctx context.Context, blockID *ids.ID) (uint64, [zcash.DataLen]byte, uint64, ids.ID, ids.ID, error) {
-	resp := new(zcash.GetBlockReply)
+func (cli *client) GetBlockByHeight(ctx context.Context, id uint64) (uint64, zavax.ZcashBlock, uint64, ids.ID, ids.ID, error) {
+	resp := new(zavax.GetBlockReply)
 	err := cli.req.SendRequest(ctx,
-		"getBlock",
-		&zcash.GetBlockArgs{ID: blockID},
+		"zavax.getBlockByHeight",
+		&zavax.QueryDataArgs{ID: id},
 		resp,
 	)
-	if err != nil {
-		return 0, [zcash.DataLen]byte{}, 0, ids.Empty, ids.Empty, err
+	if err != nil {		
 	}
-	bytes, err := formatting.Decode(formatting.Hex, resp.Data)
-	if err != nil {
-		return 0, [zcash.DataLen]byte{}, 0, ids.Empty, ids.Empty, err
-	}
-	return uint64(resp.Timestamp), zcash.BytesToData(bytes), uint64(resp.Height), resp.ID, resp.ParentID, nil
+
+	return uint64(resp.Timestamp), resp.Data, uint64(resp.Height), resp.ID, resp.ParentID, nil
 }
+
+func (cli *client) GetBlock(ctx context.Context, blockID *ids.ID) (uint64, zavax.ZcashBlock, uint64, ids.ID, ids.ID, error) {
+	resp := new(zavax.GetBlockReply)
+	err := cli.req.SendRequest(ctx,
+		"zavax.getBlock",
+		&zavax.GetBlockArgs{ID: blockID},
+		resp,
+	)
+
+	if err != nil {
+		
+	}
+	return uint64(resp.Timestamp), resp.Data, uint64(resp.Height), resp.ID, resp.ParentID, nil
+}
+

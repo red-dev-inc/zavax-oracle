@@ -6,6 +6,7 @@ type TextAreaProps = {
   className?: string;
   placeholder?: string;
   rows?: number;
+  readonly?:boolean;
   content?: string;
 };
 
@@ -15,6 +16,7 @@ const TextArea: React.FC<TextAreaProps> = ({
   className,
   placeholder,
   rows,
+  readonly,
   content
 }) => {
   return (
@@ -24,6 +26,7 @@ const TextArea: React.FC<TextAreaProps> = ({
       className={className}
       placeholder={placeholder}
       rows={rows}
+      readOnly={readonly}
       defaultValue={content}
     />
   );

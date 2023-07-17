@@ -23,14 +23,14 @@ if ! [[ "$0" =~ scripts/run.sh ]]; then
   exit 255
 fi
 
-# zcash root directory
-ZCASH_PATH=$(
+# zavax root directory
+ZAVAX_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   cd .. && pwd
 )
 
 # Load the versions
-source "$ZCASH_PATH"/scripts/versions.sh
+source "$ZAVAX_PATH"/scripts/versions.sh
 
 MODE=${MODE:-run}
 E2E=${E2E:-false}
@@ -80,13 +80,13 @@ fi
 ############################
 
 ############################
-echo "building zcash"
+echo "building zavax"
 
 # delete previous (if exists)
-rm -f /tmp/avalanchego-${avalanche_version}/plugins/vuF4cW6EQEknhDU36Q976iZoNWNkkbDEM87jasYF5JrCdUJan
+rm -f /tmp/avalanchego-${avalanche_version}/plugins/vu3xjfNfwJcNq1c4yFzvjF2hz6t2HZ4uHaWWQJvo27oyF6czX
 
 go build \
-  -o /tmp/avalanchego-${avalanche_version}/plugins/vuF4cW6EQEknhDU36Q976iZoNWNkkbDEM87jasYF5JrCdUJan \
+  -o /tmp/avalanchego-${avalanche_version}/plugins/vu3xjfNfwJcNq1c4yFzvjF2hz6t2HZ4uHaWWQJvo27oyF6czX \
   ./main/
 find /tmp/avalanchego-${avalanche_version}
 
@@ -172,13 +172,13 @@ if [[ ${MODE} == "test" ]]; then
   echo "network-runner RPC server was running on PID ${PID} as test mode; terminating the process..."
   pkill -P ${PID} || true
   kill -2 ${PID} || true
-  pkill -9 -f vuF4cW6EQEknhDU36Q976iZoNWNkkbDEM87jasYF5JrCdUJan || true # in case pkill didn't work
+  pkill -9 -f vu3xjfNfwJcNq1c4yFzvjF2hz6t2HZ4uHaWWQJvo27oyF6czX || true # in case pkill didn't work
   exit ${STATUS}
 else
   echo "network-runner RPC server is running on PID ${PID}..."
   echo ""
   echo "use the following command to terminate:"
   echo ""
-  echo "pkill -P ${PID} && kill -2 ${PID} && pkill -9 -f vuF4cW6EQEknhDU36Q976iZoNWNkkbDEM87jasYF5JrCdUJan"
+  echo "pkill -P ${PID} && kill -2 ${PID} && pkill -9 -f vu3xjfNfwJcNq1c4yFzvjF2hz6t2HZ4uHaWWQJvo27oyF6czX"
   echo ""
 fi

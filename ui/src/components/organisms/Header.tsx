@@ -6,7 +6,7 @@ const Header: React.FC = () => {
     <header className="mb-5">
       <div className="row align-items-center">
         <div className="col">
-          <h1 className='mainTitle'>ZavaX Subnet Oracle</h1>
+          <h1 className='mainTitle'>ZavaX Oracle</h1>
         </div>
         <div className="col-auto">
           <img src={logo} alt="Logo" className="logo" />

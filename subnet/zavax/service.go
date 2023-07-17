@@ -1,7 +1,7 @@
 // Copyright (C) 2019-2023, Ava Labs, Inc. All rights reserved.
 // See the file LICENSE for licensing terms.
 
-package zcash
+package zavax
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	errNoSuchBlock           = errors.New("couldn't get block from database. Does it exist?")
+	errNoSuchBlock           = errors.New("Couldn't find a block with this height in the blockchain. Does it exist?")
 	errCannotGetLastAccepted = errors.New("problem getting last accepted")
 	errNoSuchData  = errors.New("No data found!!")
 )
@@ -31,7 +31,7 @@ type GetBlockArgs struct {
 // GetBlockReply is the reply from GetBlock
 type GetBlockReply struct {
 	Timestamp json.Uint64 `json:"timestamp"` // Timestamp of block
-	Data      ZcashBlock  `json:"data"`  // Data of zcash block
+	Data      ZcashBlock  `json:"data"`  	 // Data of zcash block
 	Height    json.Uint64 `json:"height"`    // Height of block
 	ID        ids.ID      `json:"id"`        // String repr. of ID of block
 	ParentID  ids.ID      `json:"parentID"`  // String repr. of ID of block's parent
@@ -95,7 +95,10 @@ func (s *Service) GetBlockByHeight(_ *http.Request, args *QueryDataArgs, reply *
 
 	if block ==  nil {
 		// Get the block from the database
-		resp, err := s.vm.queryData(id)
+		resp, err := s.vm.queryZcashBlock(id)
+		if err != nil {
+			return errNoSuchBlock
+		}
 
 		jsonData, err := ej.Marshal(resp)
 		
@@ -104,11 +107,7 @@ func (s *Service) GetBlockByHeight(_ *http.Request, args *QueryDataArgs, reply *
 		if len(byteArray) > 0 {
 			status := s.vm.addZcashBlock(byteArray)		
 			fmt.Printf("block added into subnet : %+v %+v\n", status, resp.Height)
-			if err != nil {
-				return errNoSuchBlock
-			}
-		}
-		
+		}		
 		
 		return err
 
