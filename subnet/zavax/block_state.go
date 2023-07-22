@@ -32,6 +32,7 @@ var lastAcceptedKey = []byte{lastAcceptedByte}
 
 var (
 	errBlockHeightNotFound     = errors.New("The zavax block height is not found")
+	errBlockHeightNotAllowed   = errors.New("This block exists but is not yet final. Please try again once this block has over 24 confirmations.")
 )
 
 
@@ -282,55 +283,60 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 // GetBlock gets Block from either cache or database
 func (s *blockState) QueryZcashBlock(ID uint64) (*ZcashBlock, error) {	
 
-	url := "http://127.0.0.1:8232/"
-	
-	hash, err := getZcashHash(ID)
-	payload := map[string]interface{}{
-		"jsonrpc": "1.0",
-		"id":      "curltest",
-		"method":  "getblock",
-		"params":  []interface{}{hash},
-	}
+	allowed, err := validateZcashBlockHeight(ID)
+	if allowed {	
+		url := "http://127.0.0.1:8232/"
+		
+		hash, err := getZcashHash(ID)
+		payload := map[string]interface{}{
+			"jsonrpc": "1.0",
+			"id":      "curltest",
+			"method":  "getblock",
+			"params":  []interface{}{hash},
+		}
 
-	if err != nil {
-		return nil, errBlockHeightNotFound
-	}
-	jsonPayload, err := json.Marshal(payload)
-	if err != nil {
+		if err != nil {
+			return nil, errBlockHeightNotFound
+		}
+		jsonPayload, err := json.Marshal(payload)
+		if err != nil {
+			return nil, err
+		}
+
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Content-Type", "text/plain")
+		req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("zcash-user:Hw9!6an0i7c&")))
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var responseData struct {
+			Result *ZcashBlock `json:"result"`
+		}
+		err = json.Unmarshal(respBody, &responseData)
+		if err != nil {
+			return nil, err
+		}
+
+		block := responseData.Result
+
+		return block, nil
+	} else {
 		return nil, err
 	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Content-Type", "text/plain")
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("zcash-user:Hw9!6an0i7c&")))
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var responseData struct {
-		Result *ZcashBlock `json:"result"`
-	}
-	err = json.Unmarshal(respBody, &responseData)
-	if err != nil {
-		return nil, err
-	}
-
-	block := responseData.Result
-
-	return block, nil
 }
 
 
@@ -384,5 +390,57 @@ func getZcashHash(hgt uint64) (string, error){
 	}
 	return hash, nil
 
+}
+
+
+
+// validateZcashBlockHeight and return false if block is in latest 24
+func validateZcashBlockHeight(ID uint64) (bool, error) {	
+
+	// Given height should not be in the latest 24 block
+	excludeNoOfHeight := 24;
+	url := "http://127.0.0.1:8232/"	
+	payload := map[string]interface{}{
+		"jsonrpc": "1.0",
+		"id":      "curltest",
+		"method":  "getblockcount",
+		"params":  []uint64{},
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return false, err
+	}
+
+	req.Header.Set("Content-Type", "text/plain")
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("zcash-user:Hw9!6an0i7c&")))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return false, err
+	}
+
+	var responseData struct {
+		LatestHeight  int `json:"result"`
+	}
+	err = json.Unmarshal(respBody, &responseData)
+	if err != nil {
+		return false, errBlockHeightNotAllowed
+	}
+	blockHeight := responseData.LatestHeight 
+	if uint64(blockHeight) >= uint64(excludeNoOfHeight)+ID {
+		return true, nil
+	}
+	
+	return false, errBlockHeightNotAllowed
 }
 

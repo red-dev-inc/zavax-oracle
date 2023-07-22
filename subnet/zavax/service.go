@@ -97,8 +97,8 @@ func (s *Service) GetBlockByHeight(_ *http.Request, args *QueryDataArgs, reply *
 		// Get the block from the database
 		resp, err := s.vm.queryZcashBlock(id)
 		if err != nil {
-			return errNoSuchBlock
-		}
+			return err
+		}		
 
 		jsonData, err := ej.Marshal(resp)
 		
