@@ -102,7 +102,9 @@ echo -n "e2e" >/tmp/.genesis
 ############################
 
 echo "creating vm config"
-echo -n "{}" >/tmp/.config
+#echo -n "{}" >/tmp/.config
+
+cp ./config.json /tmp/.config
 
 ############################
 

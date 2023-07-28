@@ -283,11 +283,14 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 // GetBlock gets Block from either cache or database
 func (s *blockState) QueryZcashBlock(ID uint64) (*ZcashBlock, error) {	
 
-	allowed, err := validateZcashBlockHeight(ID)
+	confirmHeight := s.vm.config.BlockConfirmHeight
+	url :=  s.vm.config.Url
+
+	allowed, err := validateZcashBlockHeight(ID, confirmHeight, url)
 	if allowed {	
-		url := "http://127.0.0.1:8232/"
 		
-		hash, err := getZcashHash(ID)
+		
+		hash, err := getZcashHash(ID, url)
 		payload := map[string]interface{}{
 			"jsonrpc": "1.0",
 			"id":      "curltest",
@@ -340,9 +343,8 @@ func (s *blockState) QueryZcashBlock(ID uint64) (*ZcashBlock, error) {
 }
 
 
-func getZcashHash(hgt uint64) (string, error){
+func getZcashHash(hgt uint64, url string) (string, error){
 
-	url := "http://127.0.0.1:8232/"
 
 	payload := map[string]interface{}{
 		"jsonrpc": "1.0",
@@ -395,11 +397,10 @@ func getZcashHash(hgt uint64) (string, error){
 
 
 // validateZcashBlockHeight and return false if block is in latest 24
-func validateZcashBlockHeight(ID uint64) (bool, error) {	
+func validateZcashBlockHeight(ID uint64, confirmHeight int, url string) (bool, error) {	
 
 	// Given height should not be in the latest 24 block
-	excludeNoOfHeight := 24;
-	url := "http://127.0.0.1:8232/"	
+	excludeNoOfHeight := confirmHeight;
 	payload := map[string]interface{}{
 		"jsonrpc": "1.0",
 		"id":      "curltest",

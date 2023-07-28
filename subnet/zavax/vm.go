@@ -23,6 +23,7 @@ import (
 	"github.com/ava-labs/avalanchego/utils"
 	"github.com/ava-labs/avalanchego/utils/json"
 	"github.com/ava-labs/avalanchego/version"
+	ejson "encoding/json"
 )
 
 const (
@@ -50,6 +51,7 @@ type VM struct {
 	// The context of this vm
 	snowCtx   *snow.Context
 	dbManager manager.Manager
+	config     Config
 
 	// State of this VM
 	state State
@@ -86,7 +88,7 @@ func (vm *VM) Initialize(
 	dbManager manager.Manager,
 	genesisData []byte,
 	_ []byte,
-	_ []byte,
+	configBytes []byte,
 	toEngine chan<- common.Message,
 	_ []*common.Fx,
 	_ common.AppSender,
@@ -97,7 +99,17 @@ func (vm *VM) Initialize(
 		return err
 	}
 	log.Info("Initializing ZavaX VM", "Version", version)
-
+	log.Info("Chain config", "config", string(configBytes))
+	// Load config
+	vm.config.SetDefaults()
+	log.Info("Default Config", "Zcash URL", vm.config.Url)
+	if len(configBytes) > 0 {
+		if err := ejson.Unmarshal(configBytes, &vm.config); err != nil {
+			return fmt.Errorf("failed to unmarshal config %s: %w", string(configBytes), err)
+		}
+		log.Info("Override Default Config", "Zcash URL from config file", vm.config.Url)
+	}
+	
 	vm.dbManager = dbManager
 	vm.snowCtx = snowCtx
 	vm.toEngine = toEngine
