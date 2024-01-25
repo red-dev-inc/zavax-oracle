@@ -192,9 +192,10 @@ func (vm *VM) initGenesis(genesisData []byte) error {
 // Values: The handler for the API
 func (vm *VM) CreateHandlers(_ context.Context) (map[string]*common.HTTPHandler, error) {
 	server := rpc.NewServer()
+	requestTracker := NewRequestTracker()
 	server.RegisterCodec(json.NewCodec(), "application/json")
 	server.RegisterCodec(json.NewCodec(), "application/json;charset=UTF-8")
-	if err := server.RegisterService(&Service{vm: vm}, Name); err != nil {
+	if err := server.RegisterService(&Service{vm: vm, tracker: requestTracker}, Name); err != nil {
 		return nil, err
 	}
 
@@ -441,10 +442,14 @@ func (*VM) CrossChainAppResponse(_ context.Context, _ ids.ID, _ uint32, _ []byte
 	return nil
 }
 
-func (vm *VM) queryZcashBlock(ID uint64) (*ZcashBlock, error) {
-    return vm.state.QueryZcashBlock(ID)
+func (vm *VM) queryZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error) {
+    return vm.state.QueryZcashBlock(ID, validateConfirm)
 }
 
 func (vm *VM) getBlockByHeight(ID uint64) (*Block, error) {
     return vm.state.GetBlockByHeight(ID)
+}
+
+func (vm *VM) reconcileBlocks() ([]int, error) {
+    return vm.state.ReconcileBlocks()
 }

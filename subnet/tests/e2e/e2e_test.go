@@ -273,9 +273,10 @@ done:
 	instances = make([]instance, len(uris))
 	for i := range uris {
 		u := uris[i] + fmt.Sprintf("/ext/bc/%s", blockchainID)
+		tracker:= zavax.NewRequestTracker()
 		instances[i] = instance{
 			uri: u,
-			cli: client.New(u),
+			cli: client.New(u, tracker),
 		}
 	}
 })

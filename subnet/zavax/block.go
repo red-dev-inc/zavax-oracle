@@ -77,7 +77,7 @@ func (b *Block) Verify(_ context.Context) error {
 
 	zblock := ZcashBlock{}
 	err = json.Unmarshal(b.Dt, &zblock)
-	block, err := b.vm.queryZcashBlock(uint64(zblock.Height))
+	block, err := b.vm.queryZcashBlock(uint64(zblock.Height), true)
 	
 	fmt.Printf("current zblock.Hash : %+v\n",zblock.Hash)
     fmt.Printf("actual  zblock.Hash : %+v\n",zblock.Hash)
@@ -99,7 +99,6 @@ func (b *Block) Verify(_ context.Context) error {
 // Initialize sets [b.bytes] to [bytes], [b.id] to hash([b.bytes]),
 // [b.status] to [status] and [b.vm] to [vm]
 func (b *Block) Initialize(bytes []byte, status choices.Status, vm *VM) {
-	fmt.Printf("Initialize block with zavax : \n")
 	b.bytes = bytes
 	b.id = hashing.ComputeHash256Array(b.bytes)
 	b.status = status
