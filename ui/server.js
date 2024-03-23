@@ -28,7 +28,8 @@ app.post("/api/height", async (req, res) => {
     const response = await getBlock(req)
     res.json(response.data);
   } catch (error) {
-    res.status(500).json({ error: error });
+    console.error(error)
+    res.status(500).json({ error: "connection timeout" });
   }
 });
 
@@ -84,7 +85,8 @@ app.post("/api/block", async (req, res) => {
     }
     res.json(response?.data ?? {});
   } catch (error) {
-    res.status(500).json({ error: error });
+    console.error(error)
+    res.status(500).json({ error: "connection timeout" });
   }
 });
 
@@ -108,9 +110,10 @@ app.post("/api/verify", async (req, res) => {
   try {
     let response;
     response = await verifyBlocks(req.body);
-    res.json(response?.data?.result?.height ?? {});
+    res.json(response?.data?.result?.height ?? []);
   } catch (error) {
-    res.status(500).json({ error: error });
+    console.error(error)
+    res.status(500).json({ error: "connection timeout" });
   }
 });
 

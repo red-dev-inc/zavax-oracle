@@ -95,7 +95,8 @@ find /tmp/avalanchego-${avalanche_version}
 ############################
 
 echo "creating genesis file"
-echo -n "e2e" >/tmp/.genesis
+#echo -n "e2e" >/tmp/.genesis
+echo -n "" >/tmp/.genesis
 
 ############################
 

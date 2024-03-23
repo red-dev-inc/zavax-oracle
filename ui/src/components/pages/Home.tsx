@@ -7,15 +7,22 @@ import TextField from "../atoms/TextField";
 import TextArea from "../atoms/TextArea";
 import Button from "../atoms/Button";
 import Nodes from "../../utils/constants";
+import Dialog from "../molecules/Dialog/Dialog";
 
 const Home: React.FC = () => {
-                                                                                                                                      
+
+  
+  const controller = new AbortController();
+  const signal = controller.signal;                                                                                                                                      
   const [curlScript, setCurlScript] = useState('')
   const [selectedNode, setSelectedNode] = useState('');
   const [queryBlock, setQueryBlock] = useState('')
   const [queryResponse, setQueryResponse] = useState('')
   const [latestBlock, setLatestBlock] = useState('')
   const [isLoading, setIsLoading] = useState(false);
+  const [verifyModaltext, updateVerifyModalText] = useState('')
+  const [openModal, openVerifyModal] = useState(false);
+  const [loading, openVerifyModalLoading] = useState(true);
 
   const queryZavaXBlockHeight = () => {
 
@@ -39,6 +46,41 @@ const Home: React.FC = () => {
         console.error((error))
       });
 
+  }
+
+  const validateZcashBlock = async () => {
+    openVerifyModalLoading(true);
+    updateVerifyModalText('Rechecking')
+    openVerifyModal(true);
+    fetch('/api/verify', 
+      {
+        signal,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          node: selectedNode
+        }),
+      }
+    )
+    .then((response) => response.json())
+    .then((data) => { 
+      if(data?.length === 0){
+        updateVerifyModalText('All blocks have been verified and exactly match.');
+        openVerifyModalLoading(false);      
+      }else {
+        updateVerifyModalText(`All blocks have been verified. Below are mismatched blocks ${data.join(",")}.`);
+        openVerifyModalLoading(false);
+      
+      }      
+    })
+    .catch((error) => {
+      // Handle any errors here
+      updateVerifyModalText(JSON.stringify(error));
+      openVerifyModalLoading(false);
+      console.error((error))
+    });
   }
 
 
@@ -124,7 +166,7 @@ const Home: React.FC = () => {
         <Button
           id="query-zavax"
           text={`Submit to ZavaX`}
-          className={`custom-submit-button btn btn-danger`}
+          className={`custom-submit-button btn btn-danger mb-5`}
           onClick={queryZcashBlock}
           disabled={!(queryBlock && selectedNode)}
         />
@@ -162,6 +204,14 @@ const Home: React.FC = () => {
         <Label className={`mainDescription block-data mb-2`} text={`Data retrieved from ZavaX Subnet block: ${queryBlockHeight()}`} />
         <Label className={`mainDescription block-data mb-2`} text={`New ZavaX Oracle Subnet block height: ${latestBlock}`} />
       </div>
+      <Button
+          id="recheck-all-blocks"
+          text={`Recheck All Blocks`}
+          className={`custom-submit-button btn btn-danger mb-4`}
+          onClick={validateZcashBlock}
+          disabled={openModal || !selectedNode}
+        />
+      <Dialog loading={loading} content={verifyModaltext} show={openModal} handleClose={() => { controller.abort(); openVerifyModal(false); }} />
     </div>
   );
 };

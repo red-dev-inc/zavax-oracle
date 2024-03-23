@@ -5,7 +5,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/utils/rpc"
 	"github.com/red-dev-inc/zavax-oracle/tree/main/subnet/zavax"

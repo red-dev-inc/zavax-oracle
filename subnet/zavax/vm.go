@@ -7,13 +7,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gorilla/rpc/v2"
 	log "github.com/inconshreveable/log15"
 	"go.uber.org/zap"
 
-	"github.com/ava-labs/avalanchego/database/manager"
+	ejson "encoding/json"
+
+	"github.com/ava-labs/avalanchego/database"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/snow"
 	"github.com/ava-labs/avalanchego/snow/choices"
@@ -23,7 +26,6 @@ import (
 	"github.com/ava-labs/avalanchego/utils"
 	"github.com/ava-labs/avalanchego/utils/json"
 	"github.com/ava-labs/avalanchego/version"
-	ejson "encoding/json"
 )
 
 const (
@@ -50,8 +52,8 @@ var (
 type VM struct {
 	// The context of this vm
 	snowCtx   *snow.Context
-	dbManager manager.Manager
-	config     Config
+	dbManager database.Database
+	config    Config
 
 	// State of this VM
 	state State
@@ -74,6 +76,16 @@ type VM struct {
 	bootstrapped utils.Atomic[bool]
 }
 
+// GetBlockIDAtHeight implements block.ChainVM.
+func (vm *VM) GetBlockIDAtHeight(ctx context.Context, height uint64) (ids.ID, error) {
+	return vm.state.GetBlockIDAtHeight(height)
+}
+
+// VerifyHeightIndex implements block.ChainVM.
+func (*VM) VerifyHeightIndex(context.Context) error {
+	return nil
+}
+
 // Initialize this vm
 // [ctx] is this vm's context
 // [dbManager] is the manager of this vm's database
@@ -85,7 +97,7 @@ type VM struct {
 func (vm *VM) Initialize(
 	ctx context.Context,
 	snowCtx *snow.Context,
-	dbManager manager.Manager,
+	dbManager database.Database,
 	genesisData []byte,
 	_ []byte,
 	configBytes []byte,
@@ -109,14 +121,14 @@ func (vm *VM) Initialize(
 		}
 		log.Info("Override Default Config", "Zcash URL from config file", vm.config.Url)
 	}
-	
+
 	vm.dbManager = dbManager
 	vm.snowCtx = snowCtx
 	vm.toEngine = toEngine
 	vm.verifiedBlocks = make(map[ids.ID]*Block)
 
 	// Create new state
-	vm.state = NewState(vm.dbManager.Current().Database, vm)
+	vm.state = NewState(vm.dbManager, vm)
 
 	// Initialize genesis
 	if err := vm.initGenesis(genesisData); err != nil {
@@ -190,7 +202,7 @@ func (vm *VM) initGenesis(genesisData []byte) error {
 // CreateHandlers returns a map where:
 // Keys: The path extension for this VM's API (empty in this case)
 // Values: The handler for the API
-func (vm *VM) CreateHandlers(_ context.Context) (map[string]*common.HTTPHandler, error) {
+func (vm *VM) CreateHandlers(_ context.Context) (map[string]http.Handler, error) {
 	server := rpc.NewServer()
 	requestTracker := NewRequestTracker()
 	server.RegisterCodec(json.NewCodec(), "application/json")
@@ -199,30 +211,8 @@ func (vm *VM) CreateHandlers(_ context.Context) (map[string]*common.HTTPHandler,
 		return nil, err
 	}
 
-	return map[string]*common.HTTPHandler{
-		"": {
-			LockOptions: common.WriteLock,
-			Handler:     server,
-		},
-	}, nil
-}
-
-// CreateStaticHandlers returns a map where:
-// Keys: The path extension for this VM's static API
-// Values: The handler for that static API
-func (*VM) CreateStaticHandlers(_ context.Context) (map[string]*common.HTTPHandler, error) {
-	server := rpc.NewServer()
-	server.RegisterCodec(json.NewCodec(), "application/json")
-	server.RegisterCodec(json.NewCodec(), "application/json;charset=UTF-8")
-	if err := server.RegisterService(&StaticService{}, Name); err != nil {
-		return nil, err
-	}
-
-	return map[string]*common.HTTPHandler{
-		"": {
-			LockOptions: common.NoLock,
-			Handler:     server,
-		},
+	return map[string]http.Handler{
+		"": server,
 	}, nil
 }
 
@@ -313,7 +303,7 @@ func (vm *VM) ParseBlock(_ context.Context, bytes []byte) (snowman.Block, error)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Initialize the block
 	block.Initialize(bytes, choices.Processing, vm)
 
@@ -426,7 +416,7 @@ func (*VM) AppResponse(_ context.Context, _ ids.NodeID, _ uint32, _ []byte) erro
 }
 
 // This VM doesn't (currently) have any app-specific messages
-func (*VM) AppRequestFailed(_ context.Context, _ ids.NodeID, _ uint32) error {
+func (*VM) AppRequestFailed(_ context.Context, _ ids.NodeID, _ uint32, _ *common.AppError) error {
 	return nil
 }
 
@@ -434,7 +424,7 @@ func (*VM) CrossChainAppRequest(_ context.Context, _ ids.ID, _ uint32, _ time.Ti
 	return nil
 }
 
-func (*VM) CrossChainAppRequestFailed(_ context.Context, _ ids.ID, _ uint32) error {
+func (*VM) CrossChainAppRequestFailed(_ context.Context, _ ids.ID, _ uint32, _ *common.AppError) error {
 	return nil
 }
 
@@ -443,13 +433,13 @@ func (*VM) CrossChainAppResponse(_ context.Context, _ ids.ID, _ uint32, _ []byte
 }
 
 func (vm *VM) queryZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error) {
-    return vm.state.QueryZcashBlock(ID, validateConfirm)
+	return vm.state.QueryZcashBlock(ID, validateConfirm)
 }
 
 func (vm *VM) getBlockByHeight(ID uint64) (*Block, error) {
-    return vm.state.GetBlockByHeight(ID)
+	return vm.state.GetBlockByHeight(ID)
 }
 
 func (vm *VM) reconcileBlocks() ([]int, error) {
-    return vm.state.ReconcileBlocks()
+	return vm.state.ReconcileBlocks()
 }

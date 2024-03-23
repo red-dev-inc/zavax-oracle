@@ -13,14 +13,14 @@ and creates a `zavax` genesis file.
 ```bash
 # to startup a local cluster (good for development)
 cd ${HOME}/go/src/github.com/red-dev-inc/zavax-oracle
-./scripts/run.sh 1.10.2
+./scripts/run.sh 1.11.2
 
 # to run full e2e tests and shut down cluster afterwards
 cd ${HOME}/go/src/github.com/red-dev-inc/zavax-oracle
-E2E=true ./scripts/run.sh 1.10.2
+E2E=true ./scripts/run.sh 1.11.2
 
 # inspect cluster endpoints when ready
-cat /tmp/avalanchego-v1.10.2/output.yaml
+cat /tmp/avalanchego-v1.11.2/output.yaml
 <<COMMENT
 endpoint: /ext/bc/2VCAhX6vE3UnXC6s1CBPE6jJ4c4cHWMfPgCptuWS59pQ9vbeLM
 logsDir: ...

@@ -4,17 +4,18 @@
 package zavax
 
 import (
-	"github.com/ava-labs/avalanchego/cache"
-	"github.com/ava-labs/avalanchego/database"
-	"github.com/ava-labs/avalanchego/ids"
-	"github.com/ava-labs/avalanchego/snow/choices"	
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"fmt"
-	"errors"
+
+	"github.com/ava-labs/avalanchego/cache"
+	"github.com/ava-labs/avalanchego/database"
+	"github.com/ava-labs/avalanchego/ids"
+	"github.com/ava-labs/avalanchego/snow/choices"
 )
 
 const (
@@ -29,63 +30,61 @@ const (
 // persists lastAccepted block IDs with this key
 var lastAcceptedKey = []byte{lastAcceptedByte}
 
-
 var (
-	errBlockHeightNotFound     = errors.New("The zavax block height is not found")
-	errBlockHeightNotAllowed   = errors.New("This block exists but is not yet final. Please try again once this block has over 24 confirmations.")
+	errBlockHeightNotFound   = errors.New("The zavax block height is not found")
+	errBlockHeightNotAllowed = errors.New("This block exists but is not yet final. Please try again once this block has over 24 confirmations.")
 	errBlockHeightNotFetch   = errors.New("Zcash block height not fetched. Please try again or check zcash node status.")
 )
-
 
 var _ BlockState = &blockState{}
 
 type ChainSupply struct {
-	Monitored       bool    `json:"monitored"`
-	ChainValue      float64 `json:"chainValue"`
-	ChainValueZat   int64   `json:"chainValueZat"`
-	ValueDelta      float64 `json:"valueDelta"`
-	ValueDeltaZat   int64   `json:"valueDeltaZat"`
+	Monitored     bool    `json:"monitored"`
+	ChainValue    float64 `json:"chainValue"`
+	ChainValueZat int64   `json:"chainValueZat"`
+	ValueDelta    float64 `json:"valueDelta"`
+	ValueDeltaZat int64   `json:"valueDeltaZat"`
 }
 
 type ValuePool struct {
-	ID             string  `json:"id"`
-	Monitored      bool    `json:"monitored"`
-	ChainValue     float64 `json:"chainValue"`
-	ChainValueZat  int64   `json:"chainValueZat"`
-	ValueDelta     float64 `json:"valueDelta"`
-	ValueDeltaZat  int64   `json:"valueDeltaZat"`
+	ID            string  `json:"id"`
+	Monitored     bool    `json:"monitored"`
+	ChainValue    float64 `json:"chainValue"`
+	ChainValueZat int64   `json:"chainValueZat"`
+	ValueDelta    float64 `json:"valueDelta"`
+	ValueDeltaZat int64   `json:"valueDeltaZat"`
 }
 
 type ZcashBlock struct {
-	Hash               string        `json:"hash"`
-	Confirmations      int           `json:"confirmations"`
-	Size               int           `json:"size"`
-	Height             int           `json:"height"`
-	Version            int           `json:"version"`
-	MerkleRoot         string        `json:"merkleroot"`
-	BlockCommitments   string        `json:"blockcommitments"`
-	AuthDataRoot       string        `json:"authdataroot"`
-	FinalSaplingRoot   string        `json:"finalsaplingroot"`
-	ChainHistoryRoot   string        `json:"chainhistoryroot"`
-	Tx                 []string      `json:"tx"`
-	Time               int           `json:"time"`
-	Nonce              string        `json:"nonce"`
-	Solution           string        `json:"solution"`
-	Bits               string        `json:"bits"`
-	Difficulty         float64       `json:"difficulty"`
-	ChainWork          string        `json:"chainwork"`
-	Anchor             string        `json:"anchor"`
-	ChainSupply        ChainSupply   `json:"chainSupply"`
-	ValuePools         []ValuePool   `json:"valuePools"`
-	PreviousBlockHash  string        `json:"previousblockhash"`
-	NextBlockHash      string        `json:"nextblockhash"`
+	Hash              string      `json:"hash"`
+	Confirmations     int         `json:"confirmations"`
+	Size              int         `json:"size"`
+	Height            int         `json:"height"`
+	Version           int         `json:"version"`
+	MerkleRoot        string      `json:"merkleroot"`
+	BlockCommitments  string      `json:"blockcommitments"`
+	AuthDataRoot      string      `json:"authdataroot"`
+	FinalSaplingRoot  string      `json:"finalsaplingroot"`
+	ChainHistoryRoot  string      `json:"chainhistoryroot"`
+	Tx                []string    `json:"tx"`
+	Time              int         `json:"time"`
+	Nonce             string      `json:"nonce"`
+	Solution          string      `json:"solution"`
+	Bits              string      `json:"bits"`
+	Difficulty        float64     `json:"difficulty"`
+	ChainWork         string      `json:"chainwork"`
+	Anchor            string      `json:"anchor"`
+	ChainSupply       ChainSupply `json:"chainSupply"`
+	ValuePools        []ValuePool `json:"valuePools"`
+	PreviousBlockHash string      `json:"previousblockhash"`
+	NextBlockHash     string      `json:"nextblockhash"`
 }
-
 
 // BlockState defines methods to manage state with Blocks and LastAcceptedIDs.
 type BlockState interface {
 	GetBlock(blkID ids.ID) (*Block, error)
-	GetBlockByHeight(ID uint64)(*Block, error)
+	GetBlockIDAtHeight(height uint64) (ids.ID, error)
+	GetBlockByHeight(ID uint64) (*Block, error)
 	PutBlock(blk *Block) error
 	GetLastAccepted() (ids.ID, error)
 	SetLastAccepted(ids.ID) error
@@ -103,6 +102,27 @@ type blockState struct {
 
 	// vm reference
 	vm *VM
+}
+
+// GetBlockIDAtHeight implements BlockState.
+func (s *blockState) GetBlockIDAtHeight(height uint64) (ids.ID, error) {
+	if s.lastAccepted != ids.Empty {
+		return s.lastAccepted, nil
+	}
+
+	// get lastAccepted bytes from database with the fixed lastAcceptedKey
+	lastAcceptedBytes, err := s.blockDB.Get(lastAcceptedKey)
+	if err != nil {
+		return ids.ID{}, err
+	}
+	// parse bytes to ID
+	lastAccepted, err := ids.ToID(lastAcceptedBytes)
+	if err != nil {
+		return ids.ID{}, err
+	}
+	// put lastAccepted ID into memory
+	s.lastAccepted = lastAccepted
+	return lastAccepted, nil
 }
 
 // blkWrapper wraps the actual blk bytes and status to persist them together
@@ -228,17 +248,15 @@ func (s *blockState) SetLastAccepted(lastAccepted ids.ID) error {
 	return s.blockDB.Put(lastAcceptedKey, lastAccepted[:])
 }
 
-
-
-func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {	
+func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 
 	expectedHeight := hgt
 	result := 0
 
-	fmt.Printf("expectedHeight: %+v\n",hgt)
+	fmt.Printf("expectedHeight: %+v\n", hgt)
 
 	id, err := s.vm.state.GetLastAccepted()
-	fmt.Printf("GetLastAccepted: %+v\n",id)
+	fmt.Printf("GetLastAccepted: %+v\n", id)
 	zblock := ZcashBlock{}
 	if err != nil {
 		return nil, err
@@ -257,17 +275,17 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 			json.Unmarshal(data, &zblock)
 			result = zblock.Height
 		}
-		id = block.PrntID			
+		id = block.PrntID
 		//fmt.Printf("id: %+v\n",id)
 		//fmt.Printf("result: %+v\n",result)
 
 		if int(expectedHeight) == result {
-			fmt.Printf("Block height matched %+v\n",int(expectedHeight) == result)
+			fmt.Printf("Block height matched %+v\n", int(expectedHeight) == result)
 			return block, nil
 		}
-		
+
 		if block.Hght == 0 {
-			fmt.Printf("Block height is 0 hence break loop %+v\n",block.Hght)
+			fmt.Printf("Block height is 0 hence break loop %+v\n", block.Hght)
 			break
 		}
 	}
@@ -275,25 +293,25 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 	//#fmt.Printf("final expected: %+v\n",int(expectedHeight))
 	//fmt.Printf("final result: %+v\n",result)
 	if int(expectedHeight) != result {
-		fmt.Printf("final not match: %+v\n",result)
-		return  nil, nil
+		fmt.Printf("final not match: %+v\n", result)
+		return nil, nil
 	}
 
 	return nil, nil
 }
 
 // GetBlock gets Block from either cache or database
-func (s *blockState) QueryZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error) {	
+func (s *blockState) QueryZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error) {
 
 	confirmHeight := s.vm.config.BlockConfirmHeight
-	url :=  s.vm.config.Url
+	url := s.vm.config.Url
 	allowed := true
 	var isError error = nil
-	if validateConfirm	{		
+	if validateConfirm {
 		allowed, isError = validateZcashBlockHeight(ID, confirmHeight, url)
 	}
-	if allowed {		
-		
+	if allowed {
+
 		hash, err := getZcashHash(ID, url)
 		payload := map[string]interface{}{
 			"jsonrpc": "1.0",
@@ -346,9 +364,7 @@ func (s *blockState) QueryZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlo
 	}
 }
 
-
-func getZcashHash(hgt uint64, url string) (string, error){
-
+func getZcashHash(hgt uint64, url string) (string, error) {
 
 	payload := map[string]interface{}{
 		"jsonrpc": "1.0",
@@ -359,7 +375,7 @@ func getZcashHash(hgt uint64, url string) (string, error){
 
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		return "", errBlockHeightNotFound 
+		return "", errBlockHeightNotFound
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
@@ -398,13 +414,11 @@ func getZcashHash(hgt uint64, url string) (string, error){
 
 }
 
-
-
 // validateZcashBlockHeight and return false if block is in latest 24
-func validateZcashBlockHeight(ID uint64, confirmHeight int, url string) (bool, error) {	
+func validateZcashBlockHeight(ID uint64, confirmHeight int, url string) (bool, error) {
 
 	// Given height should not be in the latest 24 block
-	excludeNoOfHeight := confirmHeight;
+	excludeNoOfHeight := confirmHeight
 	payload := map[string]interface{}{
 		"jsonrpc": "1.0",
 		"id":      "curltest",
@@ -413,7 +427,7 @@ func validateZcashBlockHeight(ID uint64, confirmHeight int, url string) (bool, e
 	}
 
 	jsonPayload, err := json.Marshal(payload)
-	
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
 		return false, err
@@ -435,44 +449,44 @@ func validateZcashBlockHeight(ID uint64, confirmHeight int, url string) (bool, e
 	}
 
 	var responseData struct {
-		LatestHeight  int `json:"result"`
+		LatestHeight int `json:"result"`
 	}
 	err = json.Unmarshal(respBody, &responseData)
 	if err != nil {
 		return false, errBlockHeightNotAllowed
 	}
-	blockHeight := responseData.LatestHeight 
+	blockHeight := responseData.LatestHeight
 	if uint64(blockHeight) >= uint64(excludeNoOfHeight)+ID {
 		return true, nil
 	}
-	
+
 	return false, errBlockHeightNotFetch
 }
 
 func (s *blockState) ReconcileBlocks() ([]int, error) {
-    var misMatchedHeights []int
-    // Find the last stored block
-    id, err := s.vm.state.GetLastAccepted()
-    if err != nil {
-        return nil, err
-    }
-    fmt.Printf("Reconcile Start from GetLastAccepted: %+v\n", id)
+	var misMatchedHeights []int
+	// Find the last stored block
+	id, err := s.vm.state.GetLastAccepted()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("Reconcile Start from GetLastAccepted: %+v\n", id)
 	zcashblock := ZcashBlock{}
 	confirmHeight := s.vm.config.BlockConfirmHeight
-    // Loop until block height reaches 0
+	// Loop until block height reaches 0
 	i := 0
-    for {
-        zavaxblock, err := s.vm.getBlock(id)
+	for {
+		zavaxblock, err := s.vm.getBlock(id)
 		if err != nil {
-            return nil, err
-        }
-        data := zavaxblock.Data()
-        if len(data) != 0 {
+			return nil, err
+		}
+		data := zavaxblock.Data()
+		if len(data) != 0 {
 			if err := json.Unmarshal(data, &zcashblock); err != nil {
 				// handle the error, for example:
 				return nil, fmt.Errorf("json unmarshal error: %v", err)
 			}
-            heightUint64 := uint64(zcashblock.Height)
+			heightUint64 := uint64(zcashblock.Height)
 			if heightUint64 > uint64(confirmHeight) {
 				latestZcashBlock, err := s.vm.queryZcashBlock(heightUint64, false)
 				if latestZcashBlock != nil {
@@ -482,13 +496,13 @@ func (s *blockState) ReconcileBlocks() ([]int, error) {
 					if zcashblock.Hash != latestZcashBlock.Hash {
 						fmt.Printf("Reconcile mismatched Height: %+v\n", zcashblock.Height)
 						misMatchedHeights = append(misMatchedHeights, zcashblock.Height)
-					}  										
-				} 
+					}
+				}
 			} else {
 				fmt.Printf("zcashblock Height: %+v\n", heightUint64)
 				fmt.Printf("Excluded due to minimum height confirmation: %+v\n", confirmHeight)
-			}       
-        }
+			}
+		}
 		// Assign the next block height to reconcile
 		if zavaxblock != nil {
 			id = zavaxblock.PrntID
@@ -501,11 +515,11 @@ func (s *blockState) ReconcileBlocks() ([]int, error) {
 		//fmt.Printf("Reconcile next Height : %+v\n", zavaxblock.Hght)
 		i++
 		if zavaxblock.Hght == 0 {
-			fmt.Printf("Block height is 0 hence break loop %+v\n",zavaxblock.Hght)
+			fmt.Printf("Block height is 0 hence break loop %+v\n", zavaxblock.Hght)
 			fmt.Printf("Total blocks validated %+v\n", i)
 			break
 		}
-    }
+	}
 
-    return misMatchedHeights, nil
+	return misMatchedHeights, nil
 }

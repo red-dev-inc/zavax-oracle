@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ava-labs/avalanchego/database/manager"
+	"github.com/ava-labs/avalanchego/database/memdb"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/snow"
 	"github.com/ava-labs/avalanchego/snow/engine/common"
@@ -165,11 +165,7 @@ func TestSetState(t *testing.T) {
 }
 
 func newTestVM() (*VM, *snow.Context, chan common.Message, error) {
-	dbManager := manager.NewMemDB(&version.Semantic{
-		Major: 1,
-		Minor: 0,
-		Patch: 0,
-	})
+	dbManager := memdb.New()
 	msgChan := make(chan common.Message, 1)
 	vm := &VM{}
 	snowCtx := snow.DefaultContextTest()
