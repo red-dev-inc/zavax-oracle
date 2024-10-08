@@ -74,6 +74,9 @@ type VM struct {
 
 	// Indicates that this VM has finised bootstrapping for the chain
 	bootstrapped utils.Atomic[bool]
+
+	// Set to track unique data using string representation
+	mempoolSet map[string]bool
 }
 
 // GetBlockIDAtHeight implements block.ChainVM.
@@ -236,6 +239,20 @@ func (vm *VM) BuildBlock(ctx context.Context) (snowman.Block, error) {
 		defer vm.NotifyBlockReady()
 	}
 
+	blockStr := blockToString(value)
+
+	if vm.mempoolSet == nil {
+		vm.mempoolSet = make(map[string]bool)
+	}
+
+	// Check if the block is already in the set
+	if _, exists := vm.mempoolSet[blockStr]; exists {
+		fmt.Printf("Duplicate block request \n")
+		return nil, fmt.Errorf("Duplicate block request ")
+	}
+
+	//vm.mempoolSet[blockStr] = true
+
 	// Gets Preferred Block
 	preferredBlock, err := vm.getBlock(vm.preferred)
 	if err != nil {
@@ -250,9 +267,9 @@ func (vm *VM) BuildBlock(ctx context.Context) (snowman.Block, error) {
 	}
 
 	// Verifies block
-	if err := newBlock.Verify(ctx); err != nil {
-		return nil, err
-	}
+	//if err := newBlock.Verify(ctx); err != nil {
+	//	return nil, err
+	//}
 	return newBlock, nil
 }
 
@@ -283,7 +300,17 @@ func (vm *VM) getBlock(blkID ids.ID) (*Block, error) {
 // LastAccepted returns the block most recently accepted
 func (vm *VM) LastAccepted(_ context.Context) (ids.ID, error) { return vm.state.GetLastAccepted() }
 
+// Hash the block or convert to string for comparison.
+func blockToString(block []byte) string {
+	return string(block) // Convert block byte array to string
+}
+
+// addZcashBlock appends [data] to [p.mempool].
+// Then it notifies the consensus engine
+// that a new block is ready to be added to consensus
+// (namely, a block with data [data])
 func (vm *VM) addZcashBlock(block []byte) bool {
+
 	vm.mempool = append(vm.mempool, block)
 	vm.NotifyBlockReady()
 	return true

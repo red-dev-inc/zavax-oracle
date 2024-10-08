@@ -1,0 +1,122 @@
+@startuml ZavaXOracleDeployment
+title ZavaX Oracle Deployment - \nThree Nodes, Three RPC Proxies, and\nA Public and a Secret Web Server
+Cloud Internet as I
+left to right direction
+
+together {
+    Node ":redbridge01 (Ithaca) (Alice)" as R1 {
+        Node ":ZavaX Oracle Node 1" as ZN1 {
+            Package "AvalancheGo" as AG1 {
+                Package "Subnets" as SP1 {
+                    [ZavaX Oracle\nConsensus\nEngine] as ZCE1
+                }
+                Package "Fuji Test Network" as PN1 {
+                    entity "Avalanche\nC-Chain" as CC1
+                    entity "Avalanche\nP-Chain" as AP1
+                    entity "Avalanche\nX-Chain" as XC1
+                }
+            }
+            Package "Zcashd" as Z1 {
+                entity "Zcash\nChain" as ZCC1
+            }
+        }
+    }
+    Node ":redbridge05 (Vultr New Jersey) (Alice)" as R5 {
+        Node ":ZavaX RPC Proxy Node 1" as ZAN1 {
+            Package "ZavaX" as ZX1 {
+                [ZavaX RPC\nProxy] as ZA1 
+            }
+        }
+    }
+    note left of I : Networking Colors Key:\n\n<color:Red>• Red - Avalanche Consensus\n<color:Blue>• Blue - Zcash Consensus\n<color:Green>• Green - firewall-protected node <-> rpc Proxy \n<color:Green>comm (also goes through Internet but shown direct\n<color:Green>because of firewall rules)\n\nFirewalls for each device limit connetions to indidated port numbers.
+}
+
+together {
+    Node ":redbridge02 (HQ) (Bob)" as R2 {
+        Node ":ZavaX Oracle Node 2" as ZN2 {
+            Package "AvalancheGo" as AG2 {
+                Package "Subnets" as SP2 {
+                    [ZavaX Oracle\nConsensus\nEngine] as ZCE2
+                }
+                Package "Fuji Test Network" as PN2 {
+                    entity "Avalanche\nC-Chain" as CC2
+                    entity "Avalanche\nP-Chain" as AP2
+                    entity "Avalanche\nX-Chain" as XC2
+                }
+            }
+            Package "Zcashd" as Z2 {
+                entity "Zcash\nChain" as ZCC2
+            }
+        }
+    }
+
+    Node ":redbridge06 (Vultr Chicago) (Bob)" as R6 {
+        Node ":ZavaX RPC Proxy Node 2" as ZAN2 {
+            Package "ZavaX" as ZX2 {
+                [ZavaX RPC\nProxy] as ZA2 
+            }
+        }
+    }
+}
+
+together {
+    Node ":redbridge03 (Vultr New Jersey) (Carol)" as R3 {
+        Node ":ZavaX Oracle Node 3" as ZN3 {
+            Package "AvalancheGo" as AG3 {
+                Package "Subnets" as SP3 {
+                    [ZavaX Oracle\nConsensus\nEngine] as ZCE3
+                }
+                Package "Fuji Test Network" as PN3 {
+                    entity "Avalanche\nC-Chain" as CC3
+                    entity "Avalanche\nP-Chain" as AP3
+                    entity "Avalanche\nX-Chain" as XC3
+                }
+            }
+            Package "Zcashd" as Z3 {
+                entity "Zcash\nChain" as ZCC3
+            }
+        }
+    }
+
+    Node ":redbridge07 (Vultr Miami) (Carol)" as R7 {
+        Node ":ZavaX RPC Proxy Node 3" as ZAN3 {
+            Package "ZavaX" as ZX3 {
+                [ZavaX RPC\nProxy] as ZA3 
+            }
+        }
+    }
+}
+
+together {
+    Node ":redbridge04 (Vultr New Jersey) (Walter)" as R4 {
+        Node ":Public Web Server" as WS1 {
+            [ZavaX\nOracle UI] as ZOUI1
+        }
+    }
+
+    Node ":redbridge08 (Vultr Silicon Valley) (Xavier)" as R8 {
+        Node ":Secret Web Server" as PWS1 {
+            [ZavaX\nOracle UI] as ZOUI2
+        }
+    }
+}
+
+
+
+' C -- I 
+ZX1 -- I : tcp/19650
+ZX2 -- I : tcp/19650
+ZX3 -- I : tcp/19650
+WS1 -- I : tcp/443\ntcp/19650
+PWS1 -- I : tcp/443\ntcp/19650
+ZA1 -[Bold,#Green]- AG1 : <color:Green>tcp/9650  
+ZA2 -[Bold,#Green]- AG2 : <color:Green>tcp/9650
+ZA3 -[Bold,#Green]- AG3 : <color:Green>tcp/9650
+AG1 -[#Red]- I : <color:Red>tcp/9651
+AG2 -[#Red]- I : <color:Red>tcp/9651
+AG3 -[#Red]- I : <color:Red>tcp/9651
+Z1 -[#Blue]- I : <color:Blue>tcp/8233
+Z2 -[#Blue]- I : <color:Blue>tcp/8233
+Z3 -[#Blue]- I : <color:Blue>tcp/8233
+
+@enduml

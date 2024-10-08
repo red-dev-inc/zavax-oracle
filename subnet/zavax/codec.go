@@ -4,8 +4,6 @@
 package zavax
 
 import (
-	"time"
-
 	"github.com/ava-labs/avalanchego/codec"
 	"github.com/ava-labs/avalanchego/codec/linearcodec"
 )
@@ -22,7 +20,7 @@ var (
 
 func init() {
 	// Create default codec and manager
-	c := linearcodec.NewDefault(time.Time{})
+	c := linearcodec.NewDefault()
 	Codec = codec.NewDefaultManager()
 
 	// Register codec to manager with CodecVersion
