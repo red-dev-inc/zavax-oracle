@@ -465,58 +465,68 @@ func validateZcashBlockHeight(ID uint64, confirmHeight int, url string) (bool, e
 
 func (s *blockState) ReconcileBlocks() ([]int, error) {
 	var misMatchedHeights []int
-	// Find the last stored block
+
 	id, err := s.vm.state.GetLastAccepted()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("Reconcile Start from GetLastAccepted: %+v\n", id)
+	fmt.Printf("\nReconcile Start from GetLastAccepted: %+v\n", id)
 	zcashblock := ZcashBlock{}
 	confirmHeight := s.vm.config.BlockConfirmHeight
-	// Loop until block height reaches 0
-	i := 0
-	for {
+	checkduplicate := make(map[string]uint64)
+	dup := 0
+	for i := 0; ; i++ {
 		zavaxblock, err := s.vm.getBlock(id)
 		if err != nil {
 			return nil, err
 		}
-		data := zavaxblock.Data()
-		if len(data) != 0 {
-			if err := json.Unmarshal(data, &zcashblock); err != nil {
-				// handle the error, for example:
-				return nil, fmt.Errorf("json unmarshal error: %v", err)
-			}
-			heightUint64 := uint64(zcashblock.Height)
-			if heightUint64 > uint64(confirmHeight) {
-				latestZcashBlock, err := s.vm.queryZcashBlock(heightUint64, false)
-				if latestZcashBlock != nil {
-					if err != nil {
-						return nil, err
-					}
-					if zcashblock.Hash != latestZcashBlock.Hash {
-						fmt.Printf("Reconcile mismatched Height: %+v\n", zcashblock.Height)
-						misMatchedHeights = append(misMatchedHeights, zcashblock.Height)
-					}
-				}
-			} else {
-				fmt.Printf("zcashblock Height: %+v\n", heightUint64)
-				fmt.Printf("Excluded due to minimum height confirmation: %+v\n", confirmHeight)
-			}
-		}
-		// Assign the next block height to reconcile
-		if zavaxblock != nil {
-			id = zavaxblock.PrntID
-			// other operations with zavaxblock
-		} else {
-			// handle the nil case, for example:
+		if zavaxblock == nil {
 			return nil, fmt.Errorf("zavaxblock is nil")
 		}
-		// Break the loop if height reaches 0
-		//fmt.Printf("Reconcile next Height : %+v\n", zavaxblock.Hght)
-		i++
+
+		data := zavaxblock.Data()
+		// fmt.Printf("\nReading avalanche block height %v", zavaxblock.Hght)
+		if len(data) != 0 {
+			if err := json.Unmarshal(data, &zcashblock); err != nil {
+				return nil, fmt.Errorf("json unmarshal error: %v", err)
+			}
+
+			if zcashblock.Hash == "" || zcashblock.Height == 0 {
+				return nil, fmt.Errorf("zcashblock is missing valid data: %+v", zcashblock)
+			}
+
+			heightUint64 := uint64(zcashblock.Height)
+			blockStr := blockToString(data)
+
+			if existingId, exists := checkduplicate[blockStr]; exists {
+				dup++
+				fmt.Printf("\nDuplicate block for zavax height %v at avalanche height %v", existingId, zavaxblock.Hght)
+			} else {
+				checkduplicate[blockStr] = heightUint64
+			}
+
+			if heightUint64 > uint64(confirmHeight) {
+				latestZcashBlock, err := s.vm.queryZcashBlock(heightUint64, false)
+				if err != nil {
+					fmt.Printf("\nError reading %v", err)
+					return nil, err
+				}
+				if latestZcashBlock != nil && zcashblock.Hash != latestZcashBlock.Hash {
+					//fmt.Printf("\nReconcile mismatched Height: %+v", zcashblock.Height)
+					misMatchedHeights = append(misMatchedHeights, zcashblock.Height)
+				}
+			} else {
+				//fmt.Printf("\nzcashblock Height: %+v", heightUint64)
+				//fmt.Printf("\nExcluded due to minimum height confirmation: %+v\n", confirmHeight)
+			}
+		}
+
+		id = zavaxblock.PrntID
+
 		if zavaxblock.Hght == 0 {
-			fmt.Printf("Block height is 0 hence break loop %+v\n", zavaxblock.Hght)
-			fmt.Printf("Total blocks validated %+v\n", i)
+			fmt.Printf("\nBlock height is 0 hence break loop %+v", zavaxblock.Hght)
+			fmt.Printf("\nTotal blocks validated: %+v\n", i+1)
+			fmt.Printf("\nTotal duplicate: %+v\n", dup)
 			break
 		}
 	}

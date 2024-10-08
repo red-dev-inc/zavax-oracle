@@ -9,11 +9,12 @@ import (
 	"fmt"
 	"time"
 
+	"encoding/json"
+
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/snow/choices"
 	"github.com/ava-labs/avalanchego/snow/consensus/snowman"
 	"github.com/ava-labs/avalanchego/utils/hashing"
-	"encoding/json"
 )
 
 var (
@@ -21,6 +22,7 @@ var (
 	errDatabaseGet       = errors.New("error while retrieving data from database")
 	errTimestampTooLate  = errors.New("block's timestamp is more than 1 hour ahead of local time")
 	errBlockNotMatch     = errors.New("The zcash block queried is not match")
+	errBlockAlreadyReq   = errors.New("The zcash block queried is under consensus")
 
 	_ snowman.Block = &Block{}
 )
@@ -32,10 +34,10 @@ var (
 // 3) Timestamp
 // 4) A piece of data (a string)
 type Block struct {
-	PrntID ids.ID        `serialize:"true" json:"parentID"`  // parent's ID
-	Hght   uint64        `serialize:"true" json:"height"`    // This block's height. The genesis block is at height 0.
-	Tmstmp int64         `serialize:"true" json:"timestamp"` // Time this block was proposed at
-	Dt     []byte    `serialize:"true" json:"data"`      // Arbitrary data
+	PrntID ids.ID `serialize:"true" json:"parentID"`  // parent's ID
+	Hght   uint64 `serialize:"true" json:"height"`    // This block's height. The genesis block is at height 0.
+	Tmstmp int64  `serialize:"true" json:"timestamp"` // Time this block was proposed at
+	Dt     []byte `serialize:"true" json:"data"`      // Arbitrary data
 
 	id     ids.ID         // hold this block's ID
 	bytes  []byte         // this block's encoded bytes
@@ -54,6 +56,21 @@ func (b *Block) Verify(_ context.Context) error {
 	if err != nil {
 		return errDatabaseGet
 	}
+
+	blockVal := b.Dt
+	blockStr := blockToString(blockVal)
+
+	if b.vm.mempoolSet == nil {
+		b.vm.mempoolSet = make(map[string]bool)
+	}
+
+	// Check if the block is already in the set
+	if _, exists := b.vm.mempoolSet[blockStr]; exists {
+		fmt.Printf("Duplicate height at verify \n")
+		return errBlockAlreadyReq // Block is a duplicate, do not add it
+	}
+
+	//b.vm.mempoolSet[blockStr] = true
 
 	// Ensure [b]'s height comes right after its parent's height
 	if expectedHeight := parent.Height() + 1; expectedHeight != b.Hght {
@@ -78,9 +95,9 @@ func (b *Block) Verify(_ context.Context) error {
 	zblock := ZcashBlock{}
 	err = json.Unmarshal(b.Dt, &zblock)
 	block, err := b.vm.queryZcashBlock(uint64(zblock.Height), true)
-	
-	fmt.Printf("current zblock.Hash : %+v\n",zblock.Hash)
-    fmt.Printf("actual  zblock.Hash : %+v\n",zblock.Hash)
+
+	fmt.Printf("current zblock.Hash : %+v\n", zblock.Hash)
+	fmt.Printf("actual  zblock.Hash : %+v\n", block.Hash)
 	if err != nil {
 		return errBlockNotMatch
 	}
@@ -88,7 +105,6 @@ func (b *Block) Verify(_ context.Context) error {
 	if zblock.Hash != "" && zblock.Hash != block.Hash {
 		return errBlockNotMatch
 	}
-	
 
 	// Put that block to verified blocks in memory
 	b.vm.verifiedBlocks[b.ID()] = b
@@ -116,6 +132,20 @@ func (b *Block) Accept(_ context.Context) error {
 	if err := b.vm.state.PutBlock(b); err != nil {
 		return err
 	}
+
+	blockVal := b.Dt
+	blockStr := blockToString(blockVal)
+
+	if b.vm.mempoolSet == nil {
+		b.vm.mempoolSet = make(map[string]bool)
+	}
+
+	if _, exists := b.vm.mempoolSet[blockStr]; exists {
+		fmt.Printf("Duplicate height at accept \n")
+		return errBlockAlreadyReq // Block is a duplicate, do not add it
+	}
+
+	b.vm.mempoolSet[blockStr] = true // Add block to the set
 
 	// Set last accepted ID to this block ID
 	if err := b.vm.state.SetLastAccepted(blkID); err != nil {
