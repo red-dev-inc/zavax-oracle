@@ -39,7 +39,7 @@ The analysis focused on identifying vulnerabilities related to open ports and th
 
 ## **Results of Analysis**
 
-### Server: redbridge01 (45.77.105.206 - New York Location 1)
+### Server: redbridge01 (68.175.134.60 - New York Location 1)
 
 * **Subdomains Found:** None                                 
 * **Open Ports:** 53(dns), 80(http), 443(https), 5060(sip), 8080(http-proxy), 8233(tcpwrapped), 9651(unknown), 14851(ssh)  
