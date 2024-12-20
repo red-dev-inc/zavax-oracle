@@ -2,13 +2,15 @@
  
  This threat model is based upon the [Invariant-Centric Threat Modeling](https://github.com/defuse/ictm) methodology which focuses the discussion on what remains true about the integrity of the system when placed under various threat scenarios.
 
- The ZavaX Oracle is a proof-of-concept for the ZavaX Bridge. As such, many findings here can be applied toward improving the security of the ZavaX Bridge, and ultimately, that is the purpose of this threat model.
+ The ZavaX Oracle is a proof-of-concept for **red·bridge** (previously called ZavaX Bridge). As such, many findings here can be applied toward improving the security of **red·bridge**, and ultimately, that is the purpose of this analysis.
 
 ## Target Audience
 
 The target audience of this threat model are software security auditors and others who think about blockchain and distributed systems security.
 
 ## Participants and Adversaries
+
+Before describing the ZavaX Oracle itself, let's first define a number of *participants* and *adversaries* that will help to illustrate how it functions and various attack scenarios. 
 
 ### Participants
 
@@ -18,7 +20,7 @@ Participants **Alice**, **Bob**, and **Carol** each control one ZavaX Oracle nod
 
 **Walter** operates the web server that publicly hosts the ZavaX Oracle UI. **Xavier** operates a secret web server that can be used in place of Walter's in times of attack by adversaries.  Alice and Bob only allow RPC requests from Walter's and Xavier's web servers. Carol allows RPC requests from anywhere on the Internet, for instance by Oscar using the linux *curl* command on his home computer.
 
-Participant **Red** created the ZavaX Oracle permissioned L1 and holds private keys that allow the addition and removal of nodes and other parameter changes.
+Participant **Red** created the ZavaX Oracle permissioned (proof-of-authority) L1 and, as the *authority* for the L1, holds private keys that allow the addition and removal of nodes and other parameter changes.
 
 ### Adversaries
 
@@ -34,7 +36,7 @@ Adversary **Sybil** has many Zcash mining rigs that have been offline and now ar
 
 ## Overview of ZavaX Oracle Under Normal Operations
 
-The [ZavaX Oracle](https://zavax-oracle.red.dev) is a permissioned Avalanche L1 operating on the Avalanche Fuji Test Network. Its purpose is to serve as an oracle of blocks written to the Zcash mainnet chain, reaching consensus and recording these in its own chain. Here is what the website UI looks like:
+The [ZavaX Oracle](https://zavax-oracle.red.dev) is a permissioned (proof-of-authority) Avalanche L1 operating on the Avalanche Fuji Test Network. Its purpose is to serve as an oracle of blocks written to the Zcash mainnet chain, reaching consensus and recording these in its own chain. Here is what the website UI looks like:
 
 ![Can't display the website screenshot](images/zavaxoraclewebsite.png)
 
@@ -51,15 +53,15 @@ In addition, Oscar may send *curl* commands to query a block height as shown in 
 
 ## The ZavaX Oracle Platform
 
-This platform diagram shows ZavaX Oracle's three nodes with their associated RPC proxys (operated by Alice, Bob, and Carol) and two web servers (operated by Walter and Xavier), and the connections between them. It omits showing firewalls, but in fact, each host is protected by both host-based and external firewalls, explained elsewhere.
+This UML platform diagram shows ZavaX Oracle's three nodes with their associated RPC proxys (operated by Alice, Bob, and Carol) and two web servers (operated by Walter and Xavier), and the connections between them. It omits showing firewalls, but in fact, each host is protected by both host-based and external firewalls, [explained elsewhere](deployment-notes.md).
 
 ![Can't display the diagram](images/ZavaXOracleDeployment.png)
 
-This is a tiny Avalanche L1 with only three nodes. As such, it is well-suited to illustrate worst-case threat model scenarios that we will encounter with our next more complex project, the bridge.
+This is a tiny Avalanche L1 with only three nodes. As such, it is well-suited to illustrate worst-case threat model scenarios that we will encounter with our next more complex project, **red·bridge**.
 
-One can see that all of these attacks' feasibility and impact are mitigated—often by orders of magnitude—*by increasing the size of the network and distribution of stake.* Indeed, in the production version of the bridge, the network will be much larger. (Version 1.0 of the ZavaX Bridge will accommodate up to 1000 nodes.)
+One can see that all of these attacks' feasibility and impact are mitigated—often by orders of magnitude—*by increasing the size of the network and distribution of stake.* Indeed, in the production version of **red·bridge**, the network will be much larger. (Version 1.0 of **red·bridge** will accommodate up to 1000 nodes.)
 
-The ZavaX Oracle is also a permissioned blockchain, and this will not be the case for the bridge, which will be permissionless, further hardening the platform in some key ways. There will be no private key that can add and remove nodes, for instance.
+The ZavaX Oracle is also a permissioned (proof-of-authority) blockchain, and this will not be the case for **red·bridge**, which will be permissionless (proof-of-stake), further hardening the platform in some key ways. There will be no private key that can add and remove nodes, for instance.
 
 Finally, it's worth noting that in all but one of the scenarios described here, no bad data can be written to the ZavaX Oracle blockchain. Indeed, only under **the most severe attack** where 
 - many nodes, under the control of multiple parties, 
@@ -68,7 +70,7 @@ Finally, it's worth noting that in all but one of the scenarios described here, 
 
 is it possible to actually write bad oracle data to the blockchain. Even in this extreme case, the blockchain can be reclaimed by its rightful operators within 24 hours.
 
-Now let's dive into the threat model scenarios, security invariants, known weaknesses, and mitigations.
+Now let's explore threat model scenarios, security invariants, known weaknesses, and mitigations. Usage scenarios we examine include monitoring by an adversary, increasingly harsh infrastructure hacking, denial-of-service attacks, oracle attacks (the Zcash network is the oracle), and finally the theft of private keys that control the permissioned (proof-of-authority) ZavaX Oracle network. 
 
 ## Usage Scenario: Normal Operations with Monitoring
 
@@ -94,7 +96,6 @@ None necessary.
 
 ### Security Invariants
 
-#### Blockchain functionality preserved for other nodes
 Alice and Bob's nodes 2 and 3 continue to function normally, acting as oracles for already-minted data and correctly minting new oracle data to the ZavaX Oracle chain. This is because together, Bob and Clara control 75% of stake, greater than the 67% needed.
 
 ZavaX Oracle, as a test/PoC network, only has three nodes, but if it had more, all the rest of the other nodes would also continue to function normally.
@@ -111,7 +112,7 @@ This problem is mitigated by Oscar's opportunity to easily query other RPC proxi
 2. Guess that probably Node 3 was compromised (since results from 1 and 2 would match), and 
 3. Notify node owners Alice, Bob, and Carol. 
  
-Carol could then take action to regain control over her infrastructure. Since ZavaX Oracle is permissioned, this would have to be coordinated with the blockchain creator, Red. However, in the future, the blockchain will be permissionless, and it will simply be a matter of Carol unstaking her ZAX tokens on the node 1 hardware, spinning up a new node 4 and a RPC proxy server for node 4, and staking her tokens there. This would remove node 1 from the network within 24 hours. Then, she would have to coordinate with Walter and Xavier so that the web servers could connect to her new node's RPC proxy.
+Carol could then take action to regain control over her infrastructure. Since ZavaX Oracle is permissioned (proof-of-authority), this would have to be coordinated with the blockchain creator, Red. However, in the future, in the case of **red·bridge**, the blockchain will be permissionless (proof-of-stake), and it will simply be a matter of Carol unstaking her ZAX tokens on the node 1 hardware, spinning up a new node 4 and a RPC proxy server for node 4, and staking her tokens there. This would remove node 1 from the network within 24 hours. Then, she would have to coordinate with Walter and Xavier so that the web servers could connect to her new node's RPC proxy.
 
 This scenario can be prevented in the first place by implementing normal server op-sec, with Carol keeping her SSH private keys secure and password-protected, by Carol configuring firewalls to only allow logins from a narrow range of IP addresses, and so on.
 
@@ -137,7 +138,7 @@ Querying Carol's node for data in already-mined blocks will produce correct resu
 
 ### Known Weaknesses
 
-This is **the most severe attack**, with 75% of stake is controlled by an attacker. Because the 67% threshold to mint new blocks has been reached, new blocks with incorrect data can be minted, leaving Carol's node no choice but to agree to add the incorrect data.
+This is **the most severe attack**, with 75% of stake is controlled by an attacker. Because the 67% threshold to mint new blocks has been reached, new blocks with incorrect data can be minted, leaving Carol's node no choice but to add the incorrect data.
 
 ### Mitigations
 
@@ -169,7 +170,7 @@ Cloud service providers such as Vultr provide additional DDoS counter-measures f
 
 ### Known Weaknesses
 
-If all RPC nodes are sucessfully attacked at once, Walter's web server would be unable to function as an oracle.
+If all RPC nodes are sucessfully attacked at once, Walter's web server would be unable to function as an oracle, and *curl* commands sent to Carol's RPC proxy server would not receive responses.
 
 ### Mitigations
 
@@ -186,7 +187,7 @@ Because almost all of the load for the attack would be handled by the node's ext
 
 ## Known Weaknesses
 
-If all RPC nodes are sucessfully attacked at once, Walter's web server would be unable to function as an oracle.
+If all ZavaX nodes are attacked at once, contact between each node and its RPC proxy server could be disrupted, and as a result, Walter's web server would be unable to function as an oracle, and *curl* commands sent to Carol's RPC proxy server would not receive responses.
 
 ### Mitigations
 
@@ -237,11 +238,11 @@ The platform and its blockchain could easily be rebuilt within a week, the limit
 
 ### Removal of This Scenario from the Threat Model
 
-We are actually not concerned about this scenario at all because the bridge will be a *permissionless* L1 and as such will not have any private keys that control the entire L1 to steal; nodes enter simply by staking ZAX to join and can leave just as easily.
+We are actually not concerned about this scenario at all because **red·bridge** will be a *permissionless* proof-of-stake L1 and as such will not have any private keys that control the entire L1 to steal; nodes enter simply by staking ZAX to join and can leave just as easily.
 
 ## Summary
 
-The ZavaX Oracle platform can be attacked in a number of ways, and as a three-node L1, it is especially vulnerable. One can see that all of these attacks' feasibility and impact are mitigated, sometimes by orders of magnitude, *by just increasing the size of the network.* In the actual production version of the ZavaX Bridge, the network will be much larger. Shifting from a *permissioned* to a *permissionless* L1 further secures the platform.
+The ZavaX Oracle platform can be attacked in a number of ways, and as a three-node L1, it is especially vulnerable. One can see that all of these attacks' feasibility and impact are mitigated, sometimes by orders of magnitude, *by just increasing the size of the network.* In the actual production version of **red·bridge**, the network will be much larger. Shifting from a *permissioned* (proof-of-authority)  to a *permissionless* (proof-of-stake) L1 further secures the platform.
 
-Also, only under **the most severe attack** where many nodes, handling together greater than 67% of stake (which will be raised to 80% for ZavaX Bridge), are commandeered due to lax op-sec, is it possible to actually write bad oracle data to the blockchain. In every other case, no bad data can be written, and even in this extreme case, the blockchain can be reclaimed by its rightful operators within 24 hours.
+Also, only under **the most severe attack** where many nodes, handling together greater than 67% of stake (which will be raised to 80% for **red·bridge**), are commandeered due to lax op-sec, is it possible to actually write bad oracle data to the blockchain. In every other case, no bad data can be written, and even in this extreme case, the blockchain can be reclaimed by its rightful operators within 24 hours.
 
