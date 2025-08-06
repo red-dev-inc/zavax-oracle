@@ -6,7 +6,7 @@ toolchain go1.23.2
 
 require (
 	github.com/ava-labs/avalanche-network-runner v1.8.3
-	github.com/ava-labs/avalanchego v1.11.13
+	github.com/ava-labs/avalanchego v1.13.0
 	github.com/gorilla/rpc v1.2.1
 	github.com/inconshreveable/log15 v2.16.0+incompatible
 	github.com/onsi/ginkgo/v2 v2.20.2

@@ -64,10 +64,12 @@ func (b *Block) Verify(_ context.Context) error {
 		b.vm.alreadyProcessed = make(map[string]bool)
 	}
 
-	// Check if the block is already in the set
-	if _, exists := b.vm.alreadyProcessed[blockStr]; exists {
-		log.Info("block", "Verify", "Duplicate height at verify")
-		return errBlockAlreadyReq // Block is a duplicate, do not add it
+	if b.Hght >= b.vm.config.SkipUntilHeight {
+		// Check if the block is already in the set
+		if _, exists := b.vm.alreadyProcessed[blockStr]; exists {
+			log.Info("block", "Verify", "Duplicate height at verify")
+			return errBlockAlreadyReq // Block is a duplicate, do not add it
+		}
 	}
 
 	// Ensure [b]'s height comes right after its parent's height
@@ -144,9 +146,11 @@ func (b *Block) Accept(_ context.Context) error {
 		b.vm.alreadyProcessed = make(map[string]bool)
 	}
 
-	if _, exists := b.vm.alreadyProcessed[blockStr]; exists {
-		log.Info("block", "Accept", "Duplicate height at accept")
-		return errBlockAlreadyReq // Block is a duplicate, do not add it
+	if b.Hght >= b.vm.config.SkipUntilHeight {
+		if _, exists := b.vm.alreadyProcessed[blockStr]; exists {
+			log.Info("block", "Accept", "Duplicate height at accept")
+			return errBlockAlreadyReq // Block is a duplicate, do not add it
+		}
 	}
 
 	b.vm.alreadyProcessed[blockStr] = true // Add block to the set

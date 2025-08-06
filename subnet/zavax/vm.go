@@ -165,13 +165,14 @@ func (vm *VM) initGenesis(genesisData []byte) error {
 	}
 
 	if len(genesisData) > DataLen {
-		return errBadGenesisBytes
+		log.Info("genesis", "data", len(genesisData))
+		//return errBadGenesisBytes
 	}
 
 	// genesisData is a byte slice but each block contains an byte array
 	// Take the first [DataLen] bytes from genesisData and put them in an array
 	genesisDataArr := genesisData
-	log.Debug("genesis", "data", genesisDataArr)
+	log.Info("genesis", "data", genesisDataArr)
 
 	// Create the genesis block
 	// ZavaX of genesis block is 0. It has no parent.

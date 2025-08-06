@@ -459,10 +459,12 @@ func (s *blockState) ReconcileBlocks() ([]int, error) {
 		}
 
 		data := zavaxblock.Data()
+		
 		if len(data) != 0 {
-			if err := json.Unmarshal(data, &zcashblock); err != nil {
+			/*if err := json.Unmarshal(data, &zcashblock); err != nil {
 				return nil, fmt.Errorf("json unmarshal error: %v", err)
-			}
+			}*/
+			json.Unmarshal(data, &zcashblock)
 
 			if zcashblock.Hash == "" || zcashblock.Height == 0 {
 				return nil, fmt.Errorf("zcashblock is missing valid data: %+v", zcashblock)

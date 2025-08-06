@@ -50,13 +50,13 @@ Install and configure [OpenResty](https://OpenResty.org/en/) to protect 19650 co
 
 
 ### Config 1 (tight, Node 1 and 2)
-Only allow 19650 ports (rpc forwarded ports) inbound connections from only Public web server and Secret web server.
+Only allow 19650 ports (rpc forwarded ports) inbound connections from only Public web server and Unpublished web server.
 
 ### Config 2 (more open, Node 3) Allow all outbound connections
 Allow 19650 ports (rpc forwarded ports) inbound connections with any computer
 
 ## Web Servers Configuration
-### Secret Web Server (tight)
+### Unpublished Web Server (tight)
 Use standard Vultr firewall and UFW to only allow 443 access. Use OpenResty to protect against standard DoS attacks. Only allow 443 access from our test workstations. 
 
 ### Public Web Server

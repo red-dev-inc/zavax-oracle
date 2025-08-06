@@ -1,5 +1,5 @@
 @startuml ZavaXOracleDeployment
-title ZavaX Oracle Deployment - \nThree Nodes, Three RPC Proxies, and\nA Public and a Secret Web Server
+title ZavaX Oracle Deployment - \nThree Nodes, Three RPC Proxies, and\nA Public and a Unpublished Web Server
 Cloud Internet as I
 left to right direction
 
@@ -16,7 +16,7 @@ together {
                     entity "Avalanche\nX-Chain" as XC1
                 }
             }
-            Package "Zcashd" as Z1 {
+            Package "Zebra" as Z1 {
                 entity "Zcash\nChain" as ZCC1
             }
         }
@@ -44,7 +44,7 @@ together {
                     entity "Avalanche\nX-Chain" as XC2
                 }
             }
-            Package "Zcashd" as Z2 {
+            Package "Zebra" as Z2 {
                 entity "Zcash\nChain" as ZCC2
             }
         }
@@ -72,7 +72,7 @@ together {
                     entity "Avalanche\nX-Chain" as XC3
                 }
             }
-            Package "Zcashd" as Z3 {
+            Package "Zebra" as Z3 {
                 entity "Zcash\nChain" as ZCC3
             }
         }
@@ -95,7 +95,7 @@ together {
     }
 
     Node ":redbridge08 (Vultr Silicon Valley) (Xavier)" as R8 {
-        Node ":Secret Web Server" as PWS1 {
+        Node ":Unpublished Web Server" as PWS1 {
             [ZavaX\nOracle UI] as ZOUI2
         }
     }

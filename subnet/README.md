@@ -20,7 +20,7 @@ cd ${HOME}/go/src/github.com/red-dev-inc/zavax-oracle
 E2E=true ./scripts/run.sh 1.11.13
 
 # inspect cluster endpoints when ready
-cat /tmp/avalanchego-v1.11.13/output.yaml
+cat /tmp/avalanchego-v1.13.0/output.yaml
 <<COMMENT
 endpoint: /ext/bc/2VCAhX6vE3UnXC6s1CBPE6jJ4c4cHWMfPgCptuWS59pQ9vbeLM
 logsDir: ...
