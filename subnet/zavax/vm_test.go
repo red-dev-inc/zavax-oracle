@@ -11,7 +11,6 @@ import (
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/snow"
 	"github.com/ava-labs/avalanchego/snow/engine/common"
-	"github.com/ava-labs/avalanchego/version"
 	"github.com/stretchr/testify/require"
 )
 
@@ -61,7 +60,7 @@ func TestHappyPath(t *testing.T) {
 	require.NoError(vm.SetPreference(ctx, genesisBlock.ID()))
 
 	snowCtx.Lock.Lock()
-	vm.GetBlockByHeight([]byte{0, 0, 0, 0, 1}) // propose a value
+	vm.GetBlockByHeight(1) // propose a value
 	snowCtx.Lock.Unlock()
 
 	select { // require there is a pending tx message to the engine
@@ -93,7 +92,7 @@ func TestHappyPath(t *testing.T) {
 	require.Equal(snowmanBlock2.ID(), block2.ID())
 	require.NoError(block2.Verify(ctx))
 
-	vm.proposeBlock([]byte{0, 0, 0, 0, 2}) // propose a block
+	vm.PutZcashBlock([]byte{0, 0, 0, 0, 2}) // propose a block
 	snowCtx.Lock.Unlock()
 
 	select { // verify there is a pending tx message to the engine

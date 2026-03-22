@@ -76,7 +76,7 @@ type VM struct {
 	bootstrapped utils.Atomic[bool]
 
 	// Set to track unique data using string representation
-	mempoolSet map[string]bool
+	alreadyProcessed map[string]bool
 }
 
 // GetBlockIDAtHeight implements block.ChainVM.
@@ -165,13 +165,14 @@ func (vm *VM) initGenesis(genesisData []byte) error {
 	}
 
 	if len(genesisData) > DataLen {
-		return errBadGenesisBytes
+		log.Info("genesis", "data", len(genesisData))
+		//return errBadGenesisBytes
 	}
 
 	// genesisData is a byte slice but each block contains an byte array
 	// Take the first [DataLen] bytes from genesisData and put them in an array
 	genesisDataArr := genesisData
-	log.Debug("genesis", "data", genesisDataArr)
+	log.Info("genesis", "data", genesisDataArr)
 
 	// Create the genesis block
 	// ZavaX of genesis block is 0. It has no parent.
@@ -224,7 +225,7 @@ func (*VM) HealthCheck(_ context.Context) (interface{}, error) { return nil, nil
 
 // BuildBlock returns a block that this vm wants to add to consensus
 func (vm *VM) BuildBlock(ctx context.Context) (snowman.Block, error) {
-	fmt.Printf("BuildBlock : \n")
+	log.Info("vm", "BuildBlock", "")
 	if len(vm.mempool) == 0 { // There is no block to be built
 		return nil, errNoPendingBlocks
 	}
@@ -241,17 +242,15 @@ func (vm *VM) BuildBlock(ctx context.Context) (snowman.Block, error) {
 
 	blockStr := blockToString(value)
 
-	if vm.mempoolSet == nil {
-		vm.mempoolSet = make(map[string]bool)
+	if vm.alreadyProcessed == nil {
+		vm.alreadyProcessed = make(map[string]bool)
 	}
 
 	// Check if the block is already in the set
-	if _, exists := vm.mempoolSet[blockStr]; exists {
-		fmt.Printf("Duplicate block request \n")
-		return nil, fmt.Errorf("Duplicate block request ")
+	if _, exists := vm.alreadyProcessed[blockStr]; exists {
+		log.Info("vm", "BuildBlock", "Duplicate block request")
+		return nil, fmt.Errorf("duplicate block request ")
 	}
-
-	//vm.mempoolSet[blockStr] = true
 
 	// Gets Preferred Block
 	preferredBlock, err := vm.getBlock(vm.preferred)
@@ -266,10 +265,6 @@ func (vm *VM) BuildBlock(ctx context.Context) (snowman.Block, error) {
 		return nil, fmt.Errorf("couldn't build block: %w", err)
 	}
 
-	// Verifies block
-	//if err := newBlock.Verify(ctx); err != nil {
-	//	return nil, err
-	//}
 	return newBlock, nil
 }
 
@@ -288,40 +283,15 @@ func (vm *VM) GetBlock(_ context.Context, blkID ids.ID) (snowman.Block, error) {
 	return vm.getBlock(blkID)
 }
 
-func (vm *VM) getBlock(blkID ids.ID) (*Block, error) {
-	// If block is in memory, return it.
-	if blk, exists := vm.verifiedBlocks[blkID]; exists {
-		return blk, nil
-	}
-
-	return vm.state.GetBlock(blkID)
-}
-
 // LastAccepted returns the block most recently accepted
 func (vm *VM) LastAccepted(_ context.Context) (ids.ID, error) { return vm.state.GetLastAccepted() }
-
-// Hash the block or convert to string for comparison.
-func blockToString(block []byte) string {
-	return string(block) // Convert block byte array to string
-}
-
-// addZcashBlock appends [data] to [p.mempool].
-// Then it notifies the consensus engine
-// that a new block is ready to be added to consensus
-// (namely, a block with data [data])
-func (vm *VM) addZcashBlock(block []byte) bool {
-
-	vm.mempool = append(vm.mempool, block)
-	vm.NotifyBlockReady()
-	return true
-}
 
 // ParseBlock parses [bytes] to a snowman.Block
 // This function is used by the vm's state to unmarshal blocks saved in state
 // and by the consensus layer when it receives the byte representation of a block
 // from another node
 func (vm *VM) ParseBlock(_ context.Context, bytes []byte) (snowman.Block, error) {
-	fmt.Printf("Parse Block :\n")
+	log.Info("vm", "Parse Block", "")
 	// A new empty block
 	block := &Block{}
 
@@ -349,11 +319,10 @@ func (vm *VM) ParseBlock(_ context.Context, bytes []byte) (snowman.Block, error)
 // - the block's data is [data]
 // - the block's timestamp is [timestamp]
 func (vm *VM) NewBlock(parentID ids.ID, height uint64, data []byte, timestamp time.Time) (*Block, error) {
-	fmt.Printf("NewBlock : \n")
+	log.Info("vm", "New Block", "")
 	block := &Block{
 		PrntID: parentID,
 		Hght:   height,
-		Tmstmp: timestamp.Unix(),
 		Dt:     data,
 	}
 
@@ -419,54 +388,68 @@ func (*VM) Version(_ context.Context) (string, error) {
 	return Version.String(), nil
 }
 
-func (*VM) Connected(_ context.Context, _ ids.NodeID, _ *version.Application) error {
-	return nil // noop
+// Hash the block or convert to string for comparison.
+func blockToString(block []byte) string {
+	return string(block) // Convert block byte array to string
 }
 
-func (*VM) Disconnected(_ context.Context, _ ids.NodeID) error {
-	return nil // noop
+func (vm *VM) getBlock(blkID ids.ID) (*Block, error) {
+	// If block is in memory, return it.
+	if blk, exists := vm.verifiedBlocks[blkID]; exists {
+		return blk, nil
+	}
+
+	return vm.state.GetBlock(blkID)
 }
 
-// This VM doesn't (currently) have any app-specific messages
-func (*VM) AppGossip(_ context.Context, _ ids.NodeID, _ []byte) error {
-	return nil
+// PutZcashBlock appends [data] to [p.mempool].
+// Then it notifies the consensus engine
+// that a new block is ready to be added to consensus
+// (namely, a block with data [data])
+func (vm *VM) PutZcashBlock(block []byte) bool {
+	vm.mempool = append(vm.mempool, block)
+	vm.NotifyBlockReady()
+	return true
 }
 
-// This VM doesn't (currently) have any app-specific messages
-func (*VM) AppRequest(_ context.Context, _ ids.NodeID, _ uint32, _ time.Time, _ []byte) error {
-	return nil
+func (vm *VM) GetZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error) {
+	return vm.state.GetZcashBlock(ID, validateConfirm)
 }
 
-// This VM doesn't (currently) have any app-specific messages
-func (*VM) AppResponse(_ context.Context, _ ids.NodeID, _ uint32, _ []byte) error {
-	return nil
-}
-
-// This VM doesn't (currently) have any app-specific messages
-func (*VM) AppRequestFailed(_ context.Context, _ ids.NodeID, _ uint32, _ *common.AppError) error {
-	return nil
-}
-
-func (*VM) CrossChainAppRequest(_ context.Context, _ ids.ID, _ uint32, _ time.Time, _ []byte) error {
-	return nil
-}
-
-func (*VM) CrossChainAppRequestFailed(_ context.Context, _ ids.ID, _ uint32, _ *common.AppError) error {
-	return nil
-}
-
-func (*VM) CrossChainAppResponse(_ context.Context, _ ids.ID, _ uint32, _ []byte) error {
-	return nil
-}
-
-func (vm *VM) queryZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error) {
-	return vm.state.QueryZcashBlock(ID, validateConfirm)
-}
-
-func (vm *VM) getBlockByHeight(ID uint64) (*Block, error) {
+func (vm *VM) GetBlockByHeight(ID uint64) (*Block, error) {
 	return vm.state.GetBlockByHeight(ID)
 }
 
-func (vm *VM) reconcileBlocks() ([]int, error) {
+func (vm *VM) ReconcileBlocks() ([]int, error) {
 	return vm.state.ReconcileBlocks()
+}
+
+// AppGossip implements block.ChainVM.
+func (*VM) AppGossip(ctx context.Context, nodeID ids.NodeID, msg []byte) error {
+	return nil
+}
+
+// AppRequest implements block.ChainVM.
+func (*VM) AppRequest(ctx context.Context, nodeID ids.NodeID, requestID uint32, deadline time.Time, request []byte) error {
+	return nil
+}
+
+// AppRequestFailed implements block.ChainVM.
+func (*VM) AppRequestFailed(ctx context.Context, nodeID ids.NodeID, requestID uint32, appErr *common.AppError) error {
+	return nil
+}
+
+// AppResponse implements block.ChainVM.
+func (*VM) AppResponse(ctx context.Context, nodeID ids.NodeID, requestID uint32, response []byte) error {
+	return nil
+}
+
+// Connected implements block.ChainVM.
+func (*VM) Connected(ctx context.Context, nodeID ids.NodeID, nodeVersion *version.Application) error {
+	return nil
+}
+
+// Disconnected implements block.ChainVM.
+func (*VM) Disconnected(ctx context.Context, nodeID ids.NodeID) error {
+	return nil
 }

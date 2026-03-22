@@ -1,10 +1,10 @@
 @startuml ZavaXOracleDeployment
-title ZavaX Oracle Deployment - \nThree Nodes, Three RPC Proxies, and\nA Public and a Secret Web Server
+title ZavaX Oracle Deployment - \nThree Nodes, Three RPC Proxies, and\nA Public and a Unpublished Web Server
 Cloud Internet as I
 left to right direction
 
 together {
-    Node ":redbridge01 (Ithaca) (Alice)" as R1 {
+    Node ":redbridge01 (Ithaca) (Alice) (A-02)" as R1 {
         Node ":ZavaX Oracle Node 1" as ZN1 {
             Package "AvalancheGo" as AG1 {
                 Package "Subnets" as SP1 {
@@ -16,12 +16,12 @@ together {
                     entity "Avalanche\nX-Chain" as XC1
                 }
             }
-            Package "Zcashd" as Z1 {
+            Package "Zebra" as Z1 {
                 entity "Zcash\nChain" as ZCC1
             }
         }
     }
-    Node ":redbridge05 (Vultr New Jersey) (Alice)" as R5 {
+    Node ":redbridge05 (Vultr New Jersey) (Alice) (A-05)" as R5 {
         Node ":ZavaX RPC Proxy Node 1" as ZAN1 {
             Package "ZavaX" as ZX1 {
                 [ZavaX RPC\nProxy] as ZA1 
@@ -32,7 +32,7 @@ together {
 }
 
 together {
-    Node ":redbridge02 (HQ) (Bob)" as R2 {
+    Node ":redbridge02 (HQ) (Bob) (A-03)" as R2 {
         Node ":ZavaX Oracle Node 2" as ZN2 {
             Package "AvalancheGo" as AG2 {
                 Package "Subnets" as SP2 {
@@ -44,13 +44,13 @@ together {
                     entity "Avalanche\nX-Chain" as XC2
                 }
             }
-            Package "Zcashd" as Z2 {
+            Package "Zebra" as Z2 {
                 entity "Zcash\nChain" as ZCC2
             }
         }
     }
 
-    Node ":redbridge06 (Vultr Chicago) (Bob)" as R6 {
+    Node ":redbridge06 (Vultr Chicago) (Bob) (A-06)" as R6 {
         Node ":ZavaX RPC Proxy Node 2" as ZAN2 {
             Package "ZavaX" as ZX2 {
                 [ZavaX RPC\nProxy] as ZA2 
@@ -60,7 +60,7 @@ together {
 }
 
 together {
-    Node ":redbridge03 (Vultr New Jersey) (Carol)" as R3 {
+    Node ":redbridge03 (Vultr New Jersey) (Carol) (A-04)" as R3 {
         Node ":ZavaX Oracle Node 3" as ZN3 {
             Package "AvalancheGo" as AG3 {
                 Package "Subnets" as SP3 {
@@ -72,13 +72,13 @@ together {
                     entity "Avalanche\nX-Chain" as XC3
                 }
             }
-            Package "Zcashd" as Z3 {
+            Package "Zebra" as Z3 {
                 entity "Zcash\nChain" as ZCC3
             }
         }
     }
 
-    Node ":redbridge07 (Vultr Miami) (Carol)" as R7 {
+    Node ":redbridge07 (Vultr Miami) (Carol) (A-07)" as R7 {
         Node ":ZavaX RPC Proxy Node 3" as ZAN3 {
             Package "ZavaX" as ZX3 {
                 [ZavaX RPC\nProxy] as ZA3 
@@ -88,14 +88,14 @@ together {
 }
 
 together {
-    Node ":redbridge04 (Vultr New Jersey) (Walter)" as R4 {
+    Node ":redbridge04 (Vultr New Jersey) (Walter) (A-08)" as R4 {
         Node ":Public Web Server" as WS1 {
             [ZavaX\nOracle UI] as ZOUI1
         }
     }
 
-    Node ":redbridge08 (Vultr Silicon Valley) (Xavier)" as R8 {
-        Node ":Secret Web Server" as PWS1 {
+    Node ":redbridge08 (Vultr Silicon Valley) (Xavier) (A-09)" as R8 {
+        Node ":Unpublished Web Server" as PWS1 {
             [ZavaX\nOracle UI] as ZOUI2
         }
     }

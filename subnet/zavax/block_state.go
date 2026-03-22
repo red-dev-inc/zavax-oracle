@@ -16,6 +16,7 @@ import (
 	"github.com/ava-labs/avalanchego/database"
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/snow/choices"
+	log "github.com/inconshreveable/log15"
 )
 
 const (
@@ -88,7 +89,7 @@ type BlockState interface {
 	PutBlock(blk *Block) error
 	GetLastAccepted() (ids.ID, error)
 	SetLastAccepted(ids.ID) error
-	QueryZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error)
+	GetZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error)
 	ReconcileBlocks() ([]int, error)
 }
 
@@ -106,23 +107,7 @@ type blockState struct {
 
 // GetBlockIDAtHeight implements BlockState.
 func (s *blockState) GetBlockIDAtHeight(height uint64) (ids.ID, error) {
-	if s.lastAccepted != ids.Empty {
-		return s.lastAccepted, nil
-	}
-
-	// get lastAccepted bytes from database with the fixed lastAcceptedKey
-	lastAcceptedBytes, err := s.blockDB.Get(lastAcceptedKey)
-	if err != nil {
-		return ids.ID{}, err
-	}
-	// parse bytes to ID
-	lastAccepted, err := ids.ToID(lastAcceptedBytes)
-	if err != nil {
-		return ids.ID{}, err
-	}
-	// put lastAccepted ID into memory
-	s.lastAccepted = lastAccepted
-	return lastAccepted, nil
+	return s.lastAccepted, nil
 }
 
 // blkWrapper wraps the actual blk bytes and status to persist them together
@@ -208,12 +193,6 @@ func (s *blockState) PutBlock(blk *Block) error {
 	return s.blockDB.Put(blkID[:], wrappedBytes)
 }
 
-// DeleteBlock deletes block from both cache and database
-func (s *blockState) DeleteBlock(blkID ids.ID) error {
-	s.blkCache.Put(blkID, nil)
-	return s.blockDB.Delete(blkID[:])
-}
-
 // GetLastAccepted returns last accepted block ID
 func (s *blockState) GetLastAccepted() (ids.ID, error) {
 	// check if we already have lastAccepted ID in state memory
@@ -253,10 +232,10 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 	expectedHeight := hgt
 	result := 0
 
-	fmt.Printf("expectedHeight: %+v\n", hgt)
+	log.Info("block_state", "GetBlockByHeight", hgt)
 
 	id, err := s.vm.state.GetLastAccepted()
-	fmt.Printf("GetLastAccepted: %+v\n", id)
+	log.Info("block_state", "GetLastAccepted:", id)
 	zblock := ZcashBlock{}
 	if err != nil {
 		return nil, err
@@ -264,7 +243,6 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 
 	for int(expectedHeight) != result {
 		// Get the block from the database
-		//fmt.Printf("fetching last id: %+v\n",id)
 		block, err := s.vm.getBlock(id)
 		if err != nil {
 			return nil, err
@@ -276,24 +254,20 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 			result = zblock.Height
 		}
 		id = block.PrntID
-		//fmt.Printf("id: %+v\n",id)
-		//fmt.Printf("result: %+v\n",result)
 
 		if int(expectedHeight) == result {
-			fmt.Printf("Block height matched %+v\n", int(expectedHeight) == result)
+			log.Info("block_state", "Block height matched: ", int(expectedHeight) == result)
 			return block, nil
 		}
 
 		if block.Hght == 0 {
-			fmt.Printf("Block height is 0 hence break loop %+v\n", block.Hght)
+			log.Info("block_state", "Block height is 0 hence break loop: ", block.Hght)
 			break
 		}
 	}
-	//fmt.Printf("final zblock Hght: %+v\n",zblock.Height)
-	//#fmt.Printf("final expected: %+v\n",int(expectedHeight))
-	//fmt.Printf("final result: %+v\n",result)
+
 	if int(expectedHeight) != result {
-		fmt.Printf("final not match: %+v\n", result)
+		log.Info("block_state", "final not match:", result)
 		return nil, nil
 	}
 
@@ -301,7 +275,7 @@ func (s *blockState) GetBlockByHeight(hgt uint64) (*Block, error) {
 }
 
 // GetBlock gets Block from either cache or database
-func (s *blockState) QueryZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error) {
+func (s *blockState) GetZcashBlock(ID uint64, validateConfirm bool) (*ZcashBlock, error) {
 
 	confirmHeight := s.vm.config.BlockConfirmHeight
 	url := s.vm.config.Url
@@ -470,7 +444,7 @@ func (s *blockState) ReconcileBlocks() ([]int, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("\nReconcile Start from GetLastAccepted: %+v\n", id)
+	log.Info("block_state", "Reconcile Start from GetLastAccepted:", id)
 	zcashblock := ZcashBlock{}
 	confirmHeight := s.vm.config.BlockConfirmHeight
 	checkduplicate := make(map[string]uint64)
@@ -485,11 +459,12 @@ func (s *blockState) ReconcileBlocks() ([]int, error) {
 		}
 
 		data := zavaxblock.Data()
-		// fmt.Printf("\nReading avalanche block height %v", zavaxblock.Hght)
+		
 		if len(data) != 0 {
-			if err := json.Unmarshal(data, &zcashblock); err != nil {
+			/*if err := json.Unmarshal(data, &zcashblock); err != nil {
 				return nil, fmt.Errorf("json unmarshal error: %v", err)
-			}
+			}*/
+			json.Unmarshal(data, &zcashblock)
 
 			if zcashblock.Hash == "" || zcashblock.Height == 0 {
 				return nil, fmt.Errorf("zcashblock is missing valid data: %+v", zcashblock)
@@ -500,33 +475,29 @@ func (s *blockState) ReconcileBlocks() ([]int, error) {
 
 			if existingId, exists := checkduplicate[blockStr]; exists {
 				dup++
-				fmt.Printf("\nDuplicate block for zavax height %v at avalanche height %v", existingId, zavaxblock.Hght)
+				log.Info("block_state", "Duplicate block for zavax height", existingId, "at avalanche height", zavaxblock.Hght)
 			} else {
 				checkduplicate[blockStr] = heightUint64
 			}
 
 			if heightUint64 > uint64(confirmHeight) {
-				latestZcashBlock, err := s.vm.queryZcashBlock(heightUint64, false)
+				latestZcashBlock, err := s.vm.GetZcashBlock(heightUint64, false)
 				if err != nil {
-					fmt.Printf("\nError reading %v", err)
+					log.Info("block_state", "Error reading", err)
 					return nil, err
 				}
 				if latestZcashBlock != nil && zcashblock.Hash != latestZcashBlock.Hash {
-					//fmt.Printf("\nReconcile mismatched Height: %+v", zcashblock.Height)
 					misMatchedHeights = append(misMatchedHeights, zcashblock.Height)
 				}
-			} else {
-				//fmt.Printf("\nzcashblock Height: %+v", heightUint64)
-				//fmt.Printf("\nExcluded due to minimum height confirmation: %+v\n", confirmHeight)
 			}
 		}
 
 		id = zavaxblock.PrntID
 
 		if zavaxblock.Hght == 0 {
-			fmt.Printf("\nBlock height is 0 hence break loop %+v", zavaxblock.Hght)
-			fmt.Printf("\nTotal blocks validated: %+v\n", i+1)
-			fmt.Printf("\nTotal duplicate: %+v\n", dup)
+			log.Info("block_state", "Block height is 0 hence break loop: ", zavaxblock.Hght)
+			log.Info("block_state", "Total blocks validated: ", i+1)
+			log.Info("block_state", "Total duplicate: ", dup)
 			break
 		}
 	}
