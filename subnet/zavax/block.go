@@ -15,14 +15,15 @@ import (
 	"github.com/ava-labs/avalanchego/snow/choices"
 	"github.com/ava-labs/avalanchego/snow/consensus/snowman"
 	"github.com/ava-labs/avalanchego/utils/hashing"
+	log "github.com/inconshreveable/log15"
 )
 
 var (
 	errTimestampTooEarly = errors.New("block's timestamp is earlier than its parent's timestamp")
 	errDatabaseGet       = errors.New("error while retrieving data from database")
 	errTimestampTooLate  = errors.New("block's timestamp is more than 1 hour ahead of local time")
-	errBlockNotMatch     = errors.New("The zcash block queried is not match")
-	errBlockAlreadyReq   = errors.New("The zcash block queried is under consensus")
+	errBlockNotMatch     = errors.New("zcash block queried is not match")
+	errBlockAlreadyReq   = errors.New("zcash block queried is under consensus")
 
 	_ snowman.Block = &Block{}
 )
@@ -49,7 +50,7 @@ type Block struct {
 // To be valid, it must be that:
 // b.parent.Timestamp < b.Timestamp <= [local time] + 1 hour
 func (b *Block) Verify(_ context.Context) error {
-	fmt.Printf("Verify block with zcash \n")
+	log.Info("block", "Verify", "called")
 	// Get [b]'s parent
 	parentID := b.Parent()
 	parent, err := b.vm.getBlock(parentID)
@@ -59,21 +60,21 @@ func (b *Block) Verify(_ context.Context) error {
 
 	blockVal := b.Dt
 	blockStr := blockToString(blockVal)
-
-	if b.vm.mempoolSet == nil {
-		b.vm.mempoolSet = make(map[string]bool)
+	if b.vm.alreadyProcessed == nil {
+		b.vm.alreadyProcessed = make(map[string]bool)
 	}
 
-	// Check if the block is already in the set
-	if _, exists := b.vm.mempoolSet[blockStr]; exists {
-		fmt.Printf("Duplicate height at verify \n")
-		return errBlockAlreadyReq // Block is a duplicate, do not add it
+	if b.Hght >= b.vm.config.SkipUntilHeight {
+		// Check if the block is already in the set
+		if _, exists := b.vm.alreadyProcessed[blockStr]; exists {
+			log.Info("block", "Verify", "Duplicate height at verify")
+			return errBlockAlreadyReq // Block is a duplicate, do not add it
+		}
 	}
-
-	//b.vm.mempoolSet[blockStr] = true
 
 	// Ensure [b]'s height comes right after its parent's height
 	if expectedHeight := parent.Height() + 1; expectedHeight != b.Hght {
+		log.Info("block", "error start expectedHeight != b.Hght", expectedHeight, "!=", b.Hght)
 		return fmt.Errorf(
 			"expected block to have height %d, but found %d",
 			expectedHeight,
@@ -83,26 +84,30 @@ func (b *Block) Verify(_ context.Context) error {
 
 	// Ensure [b]'s timestamp is after its parent's timestamp.
 	if b.Timestamp().Unix() < parent.Timestamp().Unix() {
+		log.Info("block", "error start 1 time block", b.Timestamp().Unix(), "time parent", parent.Timestamp().Unix())
 		return errTimestampTooEarly
 	}
-
 	// Ensure [b]'s timestamp is not more than an hour
 	// ahead of this node's time
 	if b.Timestamp().Unix() >= time.Now().Add(time.Hour).Unix() {
+		log.Info("block", "Not more than an hour", time.Now().Add(time.Hour).Unix())
 		return errTimestampTooLate
 	}
 
 	zblock := ZcashBlock{}
 	err = json.Unmarshal(b.Dt, &zblock)
-	block, err := b.vm.queryZcashBlock(uint64(zblock.Height), true)
+	block, err := b.vm.GetZcashBlock(uint64(zblock.Height), true)
 
-	fmt.Printf("current zblock.Hash : %+v\n", zblock.Hash)
-	fmt.Printf("actual  zblock.Hash : %+v\n", block.Hash)
-	if err != nil {
+	log.Info("block", "current zblock.Hash :", zblock.Hash)
+	if err != nil || block == nil {
+		log.Info("block", "err or block is nil", block)
 		return errBlockNotMatch
 	}
 
+	log.Info("block", "actual zblock.Hash :", block.Hash)
+
 	if zblock.Hash != "" && zblock.Hash != block.Hash {
+		log.Info("block", "zcash hash not match with block hash", block)
 		return errBlockNotMatch
 	}
 
@@ -124,31 +129,35 @@ func (b *Block) Initialize(bytes []byte, status choices.Status, vm *VM) {
 // Accept sets this block's status to Accepted and sets lastAccepted to this
 // block's ID and saves this info to b.vm.DB
 func (b *Block) Accept(_ context.Context) error {
-	fmt.Printf("Accept block with zcash: \n")
+	log.Info("block", "Accept", "called")
 	b.SetStatus(choices.Accepted) // Change state of this block
 	blkID := b.ID()
 
 	// Persist data
 	if err := b.vm.state.PutBlock(b); err != nil {
+		log.Info("block", "error in Accept", "PutBlock")
 		return err
 	}
 
 	blockVal := b.Dt
 	blockStr := blockToString(blockVal)
 
-	if b.vm.mempoolSet == nil {
-		b.vm.mempoolSet = make(map[string]bool)
+	if b.vm.alreadyProcessed == nil {
+		b.vm.alreadyProcessed = make(map[string]bool)
 	}
 
-	if _, exists := b.vm.mempoolSet[blockStr]; exists {
-		fmt.Printf("Duplicate height at accept \n")
-		return errBlockAlreadyReq // Block is a duplicate, do not add it
+	if b.Hght >= b.vm.config.SkipUntilHeight {
+		if _, exists := b.vm.alreadyProcessed[blockStr]; exists {
+			log.Info("block", "Accept", "Duplicate height at accept")
+			return errBlockAlreadyReq // Block is a duplicate, do not add it
+		}
 	}
 
-	b.vm.mempoolSet[blockStr] = true // Add block to the set
+	b.vm.alreadyProcessed[blockStr] = true // Add block to the set
 
 	// Set last accepted ID to this block ID
 	if err := b.vm.state.SetLastAccepted(blkID); err != nil {
+		log.Info("block", "error in Accept", "SetLastAccepted")
 		return err
 	}
 
@@ -162,11 +171,16 @@ func (b *Block) Accept(_ context.Context) error {
 // Reject sets this block's status to Rejected and saves the status in state
 // Recall that b.vm.DB.Commit() must be called to persist to the DB
 func (b *Block) Reject(_ context.Context) error {
-	fmt.Printf("Reject block with zcash")
+	log.Info("block", "Reject", "called")
 	b.SetStatus(choices.Rejected) // Change state of this block
 	if err := b.vm.state.PutBlock(b); err != nil {
+		log.Info("block", "error in Reject", "PutBlock")
 		return err
 	}
+	blockVal := b.Dt
+	blockStr := blockToString(blockVal)
+
+	b.vm.alreadyProcessed[blockStr] = true
 	// Delete this block from verified blocks as it's rejected
 	delete(b.vm.verifiedBlocks, b.ID())
 	// Commit changes to database

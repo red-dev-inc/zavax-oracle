@@ -10,10 +10,12 @@ import (
 type Config struct {
 	BlockConfirmHeight       int `serialize:"true" json:"blockConfirmHeight"`
 	Url string `serialize:"true" json:"url"`
+	SkipUntilHeight  uint64 `serialize:"true" json:"skipUntilHeight"` 
 }
 
 func (c *Config) SetDefaults() {
 	log.Info("Load default", "Version", "inside default")
 	c.BlockConfirmHeight = 24
 	c.Url = "http://127.0.0.1:8232/"
+	c.SkipUntilHeight = 0
 }
