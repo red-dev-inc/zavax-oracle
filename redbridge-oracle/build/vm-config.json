@@ -1,1 +1,1 @@
-{"zcashRpcEndpoint":"http://140.82.43.136:8232/","confirmationDepth":24}
+{"zcashRpcEndpoint":"http://zebra:8232/","confirmationDepth":24}
