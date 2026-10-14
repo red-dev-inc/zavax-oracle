@@ -1,0 +1,19 @@
+curl -s -X POST 'http://127.0.0.1:9650/ext/bc/9gUgW8sHzHipEsAzMWimQBT2442AmMLoGwr6QfyUGX8UxA8xe/rpc' \
+    -H 'content-type: application/json' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getBlockByHeight","params":{"height":3305602}}' | jq
+curl -s -X POST 'http://127.0.0.1:9650/ext/bc/9gUgW8sHzHipEsAzMWimQBT2442AmMLoGwr6QfyUGX8UxA8xe/rpc' \
+    -H 'content-type: application/json' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getBlock","params":{"blockId":"PLmLycUwrx8TdNQ5mZMfpT9qFZqeG87cme8QBeJDi9Y2aTvsU"}}' | jq
+curl -s -X POST 'http://127.0.0.1:9650/ext/bc/9gUgW8sHzHipEsAzMWimQBT2442AmMLoGwr6QfyUGX8UxA8xe/rpc' \
+    -H 'content-type: application/json' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getBlock","params":{}}' | jq
+curl -s -X POST 'http://127.0.0.1:9650/ext/bc/9gUgW8sHzHipEsAzMWimQBT2442AmMLoGwr6QfyUGX8UxA8xe/rpc' \
+    -H 'content-type: application/json' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"zavax.reconcileBlocks","params":{}}' | jq    
+
+curl -s -X POST 'http://208.83.233.9:9650/ext/bc/9gUgW8sHzHipEsAzMWimQBT2442AmMLoGwr6QfyUGX8UxA8xe/rpc' \
+    -H 'content-type: application/json' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"zavax.reconcileBlocks","params":{}}' | jq        
+curl -s -X POST 'http://208.83.233.9:9654/ext/bc/9gUgW8sHzHipEsAzMWimQBT2442AmMLoGwr6QfyUGX8UxA8xe/rpc' \
+    -H 'content-type: application/json' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getBlockByHeight","params":{"height":3305602}}' | jq    

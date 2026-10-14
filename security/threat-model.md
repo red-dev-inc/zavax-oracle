@@ -1,8 +1,8 @@
-# ZavaX Oracle Threat Model
+# Redbridge Oracle Threat Model
 
 This threat model is based on the [Invariant-Centric Threat Modeling](https://github.com/defuse/ictm) methodology which focuses the discussion on what remains true about the integrity of the system under various threat scenarios.
 
-**ZavaX Oracle** is a three-node permissioned (proof-of-authority) L1 blockchain that runs on the Avalanche Fuji Test Network. It is a proof-of-concept for **red·bridge oracle** and **red·bridge** (previously called ZavaX Bridge). As such, some findings here can be applied toward improving the security of **red·bridge**, and ultimately, that is the purpose of this analysis. However, this threat model only addresses threats to ZavaX Oracle, not **red·bridge**.
+**Redbridge Oracle** is a three-node permissioned (proof-of-authority) L1 blockchain that runs on the Avalanche Fuji Test Network. It is a proof-of-concept for **red·bridge oracle** and **red·bridge** (previously called ZavaX Bridge). As such, some findings here can be applied toward improving the security of **red·bridge**, and ultimately, that is the purpose of this analysis. However, this threat model only addresses threats to Redbridge Oracle, not **red·bridge**.
 
 
 ## Target Audience
@@ -11,23 +11,23 @@ The target audience for this threat model is software security auditors and othe
 
 ## Participants and Adversaries
 
-Before describing the ZavaX Oracle itself in detail, let's first define a number of *Participants*, an *Asset Registry*, *Security Properties* of concern, and *Adversaries* that will help to illustrate how ZavaX Oracle functions and various attack scenarios.
+Before describing the Redbridge Oracle itself in detail, let's first define a number of *Participants*, an *Asset Registry*, *Security Properties* of concern, and *Adversaries* that will help to illustrate how Redbridge Oracle functions and various attack scenarios.
 
 ### Participants
 
-Participant **Red** created the ZavaX Oracle permissioned (proof-of-authority) L1 and, as the *authority* for the L1, holds private keys that allow the addition and removal of nodes and other parameter changes. **Red** has hand-picked **Alice**, **Bob**, and **Carol** as node operators. **Red** also runs continuous reconciliation across Alice's, Bob's, and Carol's RPC outputs and checks disputed results against Zcash ground-truth data in order to detect operator or infrastructure compromise.
+Participant **Red** created the Redbridge Oracle permissioned (proof-of-authority) L1 and, as the *authority* for the L1, holds private keys that allow the addition and removal of nodes and other parameter changes. **Red** has hand-picked **Alice**, **Bob**, and **Carol** as node operators. **Red** also runs continuous reconciliation across Alice's, Bob's, and Carol's RPC outputs and checks disputed results against Zcash ground-truth data in order to detect operator or infrastructure compromise.
 
-Participants **Alice**, **Bob**, and **Carol** each controls one ZavaX Oracle node and an associated RPC proxy server. **Alice** owns node 1, **Bob** owns node 2, and **Carol** owns node 3.
+Participants **Alice**, **Bob**, and **Carol** each controls one Redbridge Oracle node and an associated RPC proxy server. **Alice** owns node 1, **Bob** owns node 2, and **Carol** owns node 3.
 
-**Oscar** would like to use the ZavaX Oracle platform to find out the contents of a Zcash block at a particular block height. As such, Oscar represents the typical end-user of ZavaX Oracle. So, in addition to Red's monitoring, **Oscar** may independently notice anomalous responses and report them to Red and node operators.
+**Oscar** would like to use the Redbridge Oracle platform to find out the contents of a Zcash block at a particular block height. As such, Oscar represents the typical end-user of Redbridge Oracle. So, in addition to Red's monitoring, **Oscar** may independently notice anomalous responses and report them to Red and node operators.
 
-**Walter** operates the web server that publicly hosts the ZavaX Oracle UI. **Xavier** operates an unpublished web server that can be used in place of Walter's in times of attack by adversaries. **Alice** and **Bob** only allow RPC requests from Walter's and Xavier's web servers. **Carol** allows RPC requests from anywhere on the Internet via HTTPS, for instance by **Oscar** using the Linux *curl* command on his home computer.
+**Walter** operates the web server that publicly hosts the Redbridge Oracle UI. **Xavier** operates an unpublished web server that can be used in place of Walter's in times of attack by adversaries. **Alice** and **Bob** only allow RPC requests from Walter's and Xavier's web servers. **Carol** allows RPC requests from anywhere on the Internet via HTTPS, for instance by **Oscar** using the Linux *curl* command on his home computer.
 
-**The ZavaX Oracle Community** includes everyone who uses the ZavaX Oracle blockchain for any purpose, including all of the above participants.
+**The Redbridge Oracle Community** includes everyone who uses the Redbridge Oracle blockchain for any purpose, including all of the above participants.
 
 ### Asset Registry
 
-Now let's look at the parts of the **ZavaX Oracle** blockchain. This registry defines assets to be secured and a baseline set of trust attributes used throughout attack scenarios. (A *Platform Diagram* showing how assets A-02 through A-09 connect with each other can be found later in this document.)
+Now let's look at the parts of the **Redbridge Oracle** blockchain. This registry defines assets to be secured and a baseline set of trust attributes used throughout attack scenarios. (A *Platform Diagram* showing how assets A-02 through A-09 connect with each other can be found later in this document.)
 
 | Asset  | Asset Name | Description | Trust Attributes |
 | --- | --- | --- | --- |
@@ -38,11 +38,11 @@ Now let's look at the parts of the **ZavaX Oracle** blockchain. This registry de
 | A-05 | RPC Proxy 1 (Alice) | `redbridge05` host exposing ZavaX RPC Proxy for Node 1 queries. | Proxy host root credentials; TLS private key; ACL and rate-limit policy integrity. |
 | A-06 | RPC Proxy 2 (Bob) | `redbridge06` host exposing ZavaX RPC Proxy for Node 2 queries. | Proxy host root credentials; TLS private key; ACL and rate-limit policy integrity. |
 | A-07 | RPC Proxy 3 (Carol) | `redbridge07` host exposing ZavaX RPC Proxy for Node 3 queries and public HTTPS access. | Proxy host root credentials; TLS private key; ACL and rate-limit policy integrity. |
-| A-08 | Public web server (Walter) | `redbridge04` host serving the public ZavaX Oracle UI to users. | Web server root credentials; TLS private key; deployment/update pipeline integrity. |
+| A-08 | Public web server (Walter) | `redbridge04` host serving the public Redbridge Oracle UI to users. | Web server root credentials; TLS private key; deployment/update pipeline integrity. |
 | A-09 | Unpublished web server (Xavier) | `redbridge08` host serving a fallback UI endpoint not publicly advertised by default. | Web server root credentials; TLS private key; deployment/update pipeline integrity; endpoint secrecy and controlled disclosure. |
-| A-10 | ZavaX Oracle chain state | Canonical on-chain oracle records agreed by validator consensus. | Consensus integrity threshold (>67% voting weight); append-only history assumptions. |
+| A-10 | Redbridge Oracle chain state | Canonical on-chain oracle records agreed by validator consensus. | Consensus integrity threshold (>67% voting weight); append-only history assumptions. |
 | A-11 | Zebra data feed inputs | Zcash ground-truth data from each node's Zebra instance, consumed for oracle minting decisions. | Source authenticity and consistency across nodes; confirmation-depth policy integrity. |
-| A-12 | A monitoring and incident-response capability | Reconciliation, alerting, verification, and incident-coordination capability used to compare RPC outputs, check Zcash ground-truth data, and direct response actions. Available to the entire ZavaX Oracle Community. | Monitoring integrity; alert fidelity; access control for incident tooling; availability during attack and recovery. |
+| A-12 | A monitoring and incident-response capability | Reconciliation, alerting, verification, and incident-coordination capability used to compare RPC outputs, check Zcash ground-truth data, and direct response actions. Available to the entire Redbridge Oracle Community. | Monitoring integrity; alert fidelity; access control for incident tooling; availability during attack and recovery. |
 
 ### Security Properties
 
@@ -65,18 +65,18 @@ Adversaries **DaveA**, **DaveB**, and **DaveC** have botnets big enough to perfo
 
 Adversary **Sybil** has many Zcash mining rigs that have been offline and now are about to be repurposed to cause a chain split that introduces fraudulent transactions and has enough electricity available to sustain this attack for up to sixty minutes.
 
-Adversary **Kash** has 10 BTC that she will use to try to bribe Alice, Bob, and Carol to halt or corrupt ZavaX Oracle.
+Adversary **Kash** has 10 BTC that she will use to try to bribe Alice, Bob, and Carol to halt or corrupt Redbridge Oracle.
 
-Adversary **Guy** is in the government and tries to coerce Alice, Bob, and Carol to halt or corrupt ZavaX Oracle.
+Adversary **Guy** is in the government and tries to coerce Alice, Bob, and Carol to halt or corrupt Redbridge Oracle.
 
 
-## Overview of ZavaX Oracle Under Normal Operations
+## Overview of Redbridge Oracle Under Normal Operations
 
-The [ZavaX Oracle](https://zavax-oracle.red.dev) is a proof-of-authority (permissioned) Avalanche L1 operating on the Avalanche Fuji Test Network that uses the Snowman++ consensus algorithm. Its purpose is to serve as an oracle of blocks written to the Zcash mainnet chain, reaching consensus and recording these in its own chain. Here is what the website UI looks like:
+The [Redbridge Oracle](https://redbridge-oracle.red.dev) is a proof-of-authority (permissioned) Avalanche L1 operating on the Avalanche Fuji Test Network that uses the Snowman++ consensus algorithm. Its purpose is to serve as an oracle of blocks written to the Zcash mainnet chain, reaching consensus and recording these in its own chain. Here is what the website UI looks like:
 
 ![Can't display the website screenshot](images/zavaxoraclewebsite.png)
 
-Under normal operations, Oscar can query a Zcash block height using any of the RPC proxy server nodes on the ZavaX Oracle platform using Walter's [website](https://zavax-oracle.red.dev).
+Under normal operations, Oscar can query a Zcash block height using any of the RPC proxy server nodes on the Redbridge Oracle platform using Walter's [website](https://redbridge-oracle.red.dev).
 - If the contents of the Zcash block at the block height has already been written to the ZavaX chain, it is displayed.
 - If it has not yet been written to the ZavaX chain, nodes 1, 2, and 3 reach consensus with each other about the contents of the block by querying their own Zebra daemon and comparing results. Upon reaching consensus, they all write the block contents to their copy of the ZavaX chain, and then they are displayed.
 - Nodes reach consensus based on their weight:
@@ -87,27 +87,27 @@ Under normal operations, Oscar can query a Zcash block height using any of the R
 
 In addition, Oscar may send HTTPS *curl* commands to query a block height as shown in the web UI to Carol's RPC proxy server (the only RPC proxy server configured to allow RPC requests from anywhere) and a response is returned, following the same rules. Walter's website displays valid *curl* commands in the **Request** section.
 
-## The ZavaX Oracle Platform
+## The Redbridge Oracle Platform
 ### Platform Limitations - Please Note
-The ZavaX Oracle is a proof-of-concept platform, and as such, it is assumed to have some limitations with respect to this threat model that a more complex blockchain would not have:
+The Redbridge Oracle is a proof-of-concept platform, and as such, it is assumed to have some limitations with respect to this threat model that a more complex blockchain would not have:
 - As is the case with many special-purpose blockchains used by the financial industry, it is a proof-of-authority blockchain. The sole authority is the participant Red, and as such, Red has complete control over who has permission to validate the blockchain and their voting weights. Red has chosen only participants Alice, Bob, and Carol to validate the blockchain.
 - As a proof-of-authority blockchain, there are no tokens to be staked, and therefore no token economics to consider, including token-based rewards and/or penalties. Instead, the nodes' voting weights are determined solely by Red.
-- ZavaX Oracle consists of exactly three nodes. We can assume that no nodes will join the platform, and no nodes will cease operations, except when under attack in various threat scenarios described below.
+- Redbridge Oracle consists of exactly three nodes. We can assume that no nodes will join the platform, and no nodes will cease operations, except when under attack in various threat scenarios described below.
 - The three nodes have *different voting weights*, as described above, so threat consequences vary depending on which nodes are threatened.
 - We can assume that when not under attack, participants operate their nodes, RPC proxy servers, and web servers virtuously to keep systems online and, barring external influences, are successful.
 
 With these limitations in mind, we have chosen to describe threats with respect to the three participants operating their particular nodes with their particular voting weights rather than making broader generalizations about "general voting weights n," for instance.
 
 ### Platform Diagram
-This UML platform diagram shows ZavaX Oracle's three nodes with their associated RPC proxies (operated by Alice, Bob, and Carol) and two web servers (operated by Walter and Xavier), and the connections between them. It omits showing firewalls, but in fact, each host is protected by both host-based and external firewalls, [explained elsewhere](deployment-notes.md).
+This UML platform diagram shows Redbridge Oracle's three nodes with their associated RPC proxies (operated by Alice, Bob, and Carol) and two web servers (operated by Walter and Xavier), and the connections between them. It omits showing firewalls, but in fact, each host is protected by both host-based and external firewalls, [explained elsewhere](deployment-notes.md).
 
 ![Can't display the diagram](images/ZavaXOracleDeployment.png)
 
 As a small Avalanche L1 with only three nodes, it is well-suited to illustrate some worst-case threat model scenarios. One can see that all of these attacks' feasibility and impact could be mitigated—often by orders of magnitude—*by increasing the size of the network and distribution of stake.*
 
-Finally, it's worth noting that in all but two of the scenarios described here, no bad data can be written to the ZavaX Oracle blockchain. Indeed, only under **the most severe attacks**, where many nodes together with greater than 67% of stake are commandeered due to lax op-sec and/or coercion, or the entire network is compromised, is it possible to actually write bad oracle data to the blockchain. Even in these two extreme cases, the blockchain can be reclaimed by virtuous operators within 24 hours.
+Finally, it's worth noting that in all but two of the scenarios described here, no bad data can be written to the Redbridge Oracle blockchain. Indeed, only under **the most severe attacks**, where many nodes together with greater than 67% of stake are commandeered due to lax op-sec and/or coercion, or the entire network is compromised, is it possible to actually write bad oracle data to the blockchain. Even in these two extreme cases, the blockchain can be reclaimed by virtuous operators within 24 hours.
 
-Now let's explore threat model scenarios, security invariants, known weaknesses, and mitigations. Usage scenarios we examine include monitoring by an adversary, increasingly harsh infrastructure hacking, denial-of-service attacks, oracle attacks (the Zcash network is the oracle), and finally the theft of private keys that control the permissioned (proof-of-authority) ZavaX Oracle network. Regarding bribery by Kash or coercion by Guy, we focus on the impact of bribing or coercing the node operators Alice, Bob, Carol, as well as Red.
+Now let's explore threat model scenarios, security invariants, known weaknesses, and mitigations. Usage scenarios we examine include monitoring by an adversary, increasingly harsh infrastructure hacking, denial-of-service attacks, oracle attacks (the Zcash network is the oracle), and finally the theft of private keys that control the permissioned (proof-of-authority) Redbridge Oracle network. Regarding bribery by Kash or coercion by Guy, we focus on the impact of bribing or coercing the node operators Alice, Bob, Carol, as well as Red.
 
 ## Usage-Scenario-to-Assets-and-Properties Matrix
 
@@ -122,12 +122,12 @@ Now let's explore threat model scenarios, security invariants, known weaknesses,
 | US-07 | DaveB attempts to perform a DDoS attack against one, two, or three ZavaX nodes | SP‑Availability | A-02, A-03, A-04 (and dependent outage on A-05, A-06, A-07) | No |
 | US-08 | DaveC attempts to perform a DDoS attack against Walter's web server | SP‑Availability | A-08 (and possible follow-on risk to A-09) | No |
 | US-09 | Sybil attempts to cause a Zcash chain split that includes all three ZavaX nodes for one hour | SP‑Integrity (risk after depth window) | A-11 with downstream risk to A-10 | Yes |
-| US-10 | Red's private keys for administering the permissioned ZavaX Oracle L1 are stolen | SP‑Availability, SP‑Authentication, SP‑Integrity, SP‑Confidentiality | A-01, A-10, A-02, A-03, A-04 | Yes |
+| US-10 | Red's private keys for administering the permissioned Redbridge Oracle L1 are stolen | SP‑Availability, SP‑Authentication, SP‑Integrity, SP‑Confidentiality | A-01, A-10, A-02, A-03, A-04 | Yes |
 | n/a | Bribery/coercion variations (Kash/Guy) | Same as matched base scenario | Same as matched base scenario | Yes |
 
 ## Usage Scenario US-01: Normal Operations with Monitoring
 
-Eve is monitoring all network traffic between all devices in the ZavaX Oracle platform, all Zcash nodes, and Avalanche nodes. In other words, the Internet is functioning normally.
+Eve is monitoring all network traffic between all devices in the Redbridge Oracle platform, all Zcash nodes, and Avalanche nodes. In other words, the Internet is functioning normally.
 
 ### Referenced Security Properties and Assets
 
@@ -137,13 +137,13 @@ Assets in scope:
 - **A-02**, **A-03**, **A-04:** Validator infrastructures
 - **A-05**, **A-06**, **A-07:** RPC proxy infrastructures
 - **A-08**, **A-09:** Web server infrastructures
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 - **A-11:** Zebra data feed inputs
 - **A-12:** Monitoring and incident-response capability
 
 ### Security Invariants
 
-Even with complete monitoring, the ZavaX Oracle platform will operate normally.
+Even with complete monitoring, the Redbridge Oracle platform will operate normally.
 
 All connections except for Zebra-to-Zebra connections are performed over TLS with a certificate issued by [Let's Encrypt](https://letsencrypt.org) and are therefore secure from Eve's snooping to the extent that this configuration provides. The TLS private key is stored in a non-public location on the servers; the public key is available to all.
 
@@ -174,13 +174,13 @@ Assets in scope:
 - **A-07:** RPC Proxy 3 (Carol)
 - **A-02**, **A-03:** Node 1 and Node 2 validator infrastructures (Alice and Bob)
 - **A-05**, **A-06:** RPC Proxy 1 and RPC Proxy 2 (Alice and Bob)
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 - **A-11:** Zebra data feed inputs
 - **A-12:** Monitoring and incident-response capability
 
 ### Security Invariants
 
-Alice and Bob's nodes 1 and 2 continue to function normally, acting as oracles for already-minted data and correctly minting new oracle data to the ZavaX Oracle chain. This is because together, Alice and Bob control 75% of stake, greater than the 67% needed.
+Alice and Bob's nodes 1 and 2 continue to function normally, acting as oracles for already-minted data and correctly minting new oracle data to the Redbridge Oracle chain. This is because together, Alice and Bob control 75% of stake, greater than the 67% needed.
 
 Properties preserved in this scenario are partial **SP‑Availability** (platform remains available through Alice/Bob paths) and **SP‑Integrity** for **A-10** (canonical chain state remains correct because attacker controls less than 67% voting weight).
 
@@ -240,7 +240,7 @@ Assets in scope:
 - **A-03**, **A-04:** Node 2 and Node 3 validator infrastructures (Bob and Carol)
 - **A-06**, **A-07:** RPC Proxy 2 and RPC Proxy 3 (Bob and Carol)
 - **A-02**, **A-05:** Node 1 and RPC Proxy 1 (Alice) as independent cross-check path
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 - **A-11:** Zebra data feed inputs
 - **A-12:** Monitoring and incident-response capability
 
@@ -306,13 +306,13 @@ Assets in scope:
 - **A-02**, **A-03:** Node 1 and Node 2 validator infrastructures (Alice and Bob)
 - **A-05**, **A-06:** RPC Proxy 1 and RPC Proxy 2 (Alice and Bob)
 - **A-04**, **A-07:** Node 3 and RPC Proxy 3 (Carol) as independent comparison path
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 - **A-11:** Zebra data feed inputs
 - **A-12:** Monitoring and incident-response capability
 
 ### Security Invariants
 
-Querying Carol's node for data in already-minted blocks will produce correct results. Inconsistent results from Carol's node in comparison to those from Alice's and Bob's would indicate to Oscar and others that the ZavaX Oracle platform is under attack and compromised.
+Querying Carol's node for data in already-minted blocks will produce correct results. Inconsistent results from Carol's node in comparison to those from Alice's and Bob's would indicate to Oscar and others that the Redbridge Oracle platform is under attack and compromised.
 
 Property preserved in this scenario: limited **SP‑Integrity** at the comparison endpoint (**A-04** and **A-07**) for already-minted historical data checks.
 
@@ -371,7 +371,7 @@ Assets in scope:
 - **A-08:** Public web server (Walter)
 - **A-09:** Unpublished web server (Xavier)
 - **A-07:** RPC Proxy 3 (public `curl` cross-check path)
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 
 ### Security Invariants
 
@@ -398,7 +398,7 @@ Impacted assets in this scenario: **A-08** directly; **A-10** remains unmodified
 
 **Verifier:** Xavier, Red, and independent users, by cross-checking Walter's published results against Xavier's web server and Carol's RPC responses before treating Walter's UI output as trustworthy.
 
-**Decision-maker:** Xavier, in consultation with Red, decides to publicize his unpublished web server to the ZavaX Oracle community as an alternate trusted web access path while Walter's server remains suspect.
+**Decision-maker:** Xavier, in consultation with Red, decides to publicize his unpublished web server to the Redbridge Oracle community as an alternate trusted web access path while Walter's server remains suspect.
 
 **Recovery trigger:** Resume relying on Walter's web server as a primary public interface only after its results consistently match Xavier's web server and Carol's RPC proxy server over a stabilization period.
 
@@ -420,7 +420,7 @@ Security properties referenced in this scenario: **SP‑Availability**, **SP‑I
 Assets in scope:
 - **A-05**, **A-06**, **A-07:** RPC proxy infrastructures
 - **A-08**, **A-09:** Web servers dependent on RPC paths
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 
 ### Security Invariants
 
@@ -459,7 +459,7 @@ Security properties referenced in this scenario: **SP‑Availability**, **SP‑I
 Assets in scope:
 - **A-02**, **A-03**, **A-04:** validator node infrastructures
 - **A-05**, **A-06**, **A-07:** RPC proxies dependent on node connectivity
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 
 ### Security Invariants
 
@@ -500,7 +500,7 @@ Assets in scope:
 - **A-08:** Public web server (Walter)
 - **A-09:** Unpublished web server (Xavier)
 - **A-05**, **A-06**, **A-07:** RPC proxy alternatives for direct checks
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 
 ### Security Invariants
 
@@ -512,7 +512,7 @@ Properties preserved in this scenario: **SP‑Integrity** for **A-10** and parti
 
 ### Known Weaknesses
 
-Once Xavier's web server's address is publicized to the ZavaX Oracle community, it could be a target for attack as well.
+Once Xavier's web server's address is publicized to the Redbridge Oracle community, it could be a target for attack as well.
 
 Property violated in this scenario (when attack succeeds): **SP‑Availability** for **A-08**.
 
@@ -522,11 +522,11 @@ Impacted assets in this scenario: **A-08** directly; possible follow-on availabi
 
 **Detector:** Oscar, Red, Walter, Xavier, and other operators, by monitoring Walter's public web endpoint for abnormal request volume, service degradation, failed health checks, and availability loss.
 
-**Signal:** Walter's public web server becomes unavailable or unstable under volumetric floods or host-targeted traffic spikes, while the rest of the ZavaX Oracle platform remains healthy.
+**Signal:** Walter's public web server becomes unavailable or unstable under volumetric floods or host-targeted traffic spikes, while the rest of the Redbridge Oracle platform remains healthy.
 
 **Verifier:** Red, Walter, Xavier, and other operators, by confirming that the outage is isolated to Walter's public web server and not caused by failures in the RPC proxy servers, validator nodes, or upstream chain state.
 
-**Decision-maker:** Under Red's direction, Walter applies the prepared DDoS response for the public web server, including enabling additional provider protections and tightening firewall, WAF, rate-limit, and bot-filtering controls as needed. If Walter's public endpoint cannot be restored promptly, Xavier publicizes his unpublished web server as a fallback access path for the ZavaX Oracle community. Operators limit disclosure of fallback endpoint details to what is operationally necessary and maintain separate credentials and certificates for fallback infrastructure.
+**Decision-maker:** Under Red's direction, Walter applies the prepared DDoS response for the public web server, including enabling additional provider protections and tightening firewall, WAF, rate-limit, and bot-filtering controls as needed. If Walter's public endpoint cannot be restored promptly, Xavier publicizes his unpublished web server as a fallback access path for the Redbridge Oracle community. Operators limit disclosure of fallback endpoint details to what is operationally necessary and maintain separate credentials and certificates for fallback infrastructure.
 
 **Recovery trigger:** Resume normal reliance on Walter's public web server only after its availability stabilizes, attack symptoms subside, and the service passes a defined stability check window. If Xavier's fallback endpoint was publicized during the incident, operators should treat it as newly exposed and reassess whether to keep using it, de-publicize it, or prepare a fresh unpublished fallback endpoint.
 
@@ -538,18 +538,18 @@ Security properties referenced in this scenario: **SP‑Availability**, **SP‑I
 
 Assets in scope:
 - **A-11:** Zebra data feed inputs
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 - **A-02**, **A-03**, **A-04:** validator nodes that consume the feed
 
 ### Security Invariants
 
-Because the ZavaX Oracle will not include a Zcash block until it is over 24 blocks deep, during those approximately 30 minutes (depending on Zcash block interval during this attack), the ZavaX Oracle would operate normally.
+Because the Redbridge Oracle will not include a Zcash block until it is over 24 blocks deep, during those approximately 30 minutes (depending on Zcash block interval during this attack), the Redbridge Oracle would operate normally.
 
 Property preserved in this phase: **SP‑Integrity** for **A-10**, because confirmation-depth policy protects against short-lived chain splits.
 
 ### Known Weaknesses
 
-After approximately 30 minutes, the ZavaX Oracle blockchain would be in danger of reporting bad data.
+After approximately 30 minutes, the Redbridge Oracle blockchain would be in danger of reporting bad data.
 
 Property at risk in this scenario: **SP‑Integrity** for **A-10**, due to compromised trustworthiness of **A-11** under a sustained chain split.
 
@@ -564,15 +564,15 @@ Impacted assets in this scenario: **A-11** as corrupted external input source, w
 **Verifier:** Alice, Bob, and Carol, by comparing their observed Zcash branch state across independent nodes before halting ZavaX block production.
 
 **Decision-maker:** Decisions depend on when the threat is discovered and whether or not it is ongoing.
-- If it is discovered within the 30-minute window, Alice, Bob, and Carol jointly decide to temporarily halt ZavaX Oracle block production until the Zcash chain split resolves. 
+- If it is discovered within the 30-minute window, Alice, Bob, and Carol jointly decide to temporarily halt Redbridge Oracle block production until the Zcash chain split resolves. 
 - If it is discovered after the 30 minute window and before the attack has ended, Alice, Bob, and Carol can halt block production and stop reporting recent blocks. 
-- If it is discovered after the attack has ended, or if it is discovered after the 30 minute window, Alice, Bob, and Carol in coordination with Red can jointly decide to roll back their nodes to a block height just prior to when bad blocks were written to the ZavaX Oracle blockchain.
+- If it is discovered after the attack has ended, or if it is discovered after the 30 minute window, Alice, Bob, and Carol in coordination with Red can jointly decide to roll back their nodes to a block height just prior to when bad blocks were written to the Redbridge Oracle blockchain.
 
 **Recovery trigger:** Resume ZavaX block production only after the Zcash chain has reconverged on a stable canonical branch and the confirmation-depth policy again protects **A-10** from bad upstream data.
 
 While block production is halted, the RPC proxy servers and Walter's and Xavier's web servers can continue serving Zcash blocks already written to the ZavaX chain. New blocks cannot be reported until ZavaX block production resumes.
 
-## Usage Scenario US-10: Red's private keys for administering the permissioned ZavaX Oracle L1 are stolen
+## Usage Scenario US-10: Red's private keys for administering the permissioned Redbridge Oracle L1 are stolen
 
 ### Referenced Security Properties and Assets
 
@@ -580,7 +580,7 @@ Security properties referenced in this scenario: **SP‑Availability**, **SP‑A
 
 Assets in scope:
 - **A-01:** Red authority administration keys
-- **A-10:** ZavaX Oracle chain state
+- **A-10:** Redbridge Oracle chain state
 - **A-02**, **A-03**, **A-04:** Validator infrastructures (subject to adversarial reconfiguration)
 - **A-12:** Monitoring and incident-response capability
 
@@ -600,7 +600,7 @@ Impacted assets in this scenario: **A-01** and **A-12** directly and system-wide
 
 **Detector:** Oscar, Red, validator operators, and dependent service operators, by detecting unauthorized governance or administration actions attributable to Red's stolen keys.
 
-**Signal:** Privileged actions on the permissioned ZavaX Oracle L1 occur without authorization, indicating that Red's administration keys (**A-01**) have been compromised, that **A-12** can no longer be treated as authoritative without revalidation, and that chain governance can no longer be trusted.
+**Signal:** Privileged actions on the permissioned Redbridge Oracle L1 occur without authorization, indicating that Red's administration keys (**A-01**) have been compromised, that **A-12** can no longer be treated as authoritative without revalidation, and that chain governance can no longer be trusted.
 
 **Verifier:** Red and the remaining operators, by confirming the key compromise using out-of-band coordination, identifying the malicious governance actions taken, and validating that Alice, Bob, Carol, Walter, and Xavier still retain control of their own infrastructure.
 
@@ -614,13 +614,13 @@ Only proof-of-authority blockchains have this vulnerability; in proof-of-stake b
 
 The **Security Invariants** and **Known Weaknesses** remain the same. However, the **Mitigations** are different.
 
-**Detector:** Since Red has been corrupted, only Oscar and the ZavaX Oracle Community as a group could detect this attack. They would do so by detecting governance or administration actions attributable to Red, or by Community members independently verifying misleading ZavaX Oracle results with the canonical Zcash blockchain.
+**Detector:** Since Red has been corrupted, only Oscar and the Redbridge Oracle Community as a group could detect this attack. They would do so by detecting governance or administration actions attributable to Red, or by Community members independently verifying misleading Redbridge Oracle results with the canonical Zcash blockchain.
 
-**Signal:** Privileged actions on the permissioned ZavaX Oracle L1 occur seemingly in opposition to the best interests of the ZavaX Oracle community, for instance, the removal of Alice's node without cause (just one of many examples), indicating that Red may have been compromised by bribery or coercion, that **A-12** can no longer be treated as authoritative without revalidation, and that chain governance can no longer be trusted.
+**Signal:** Privileged actions on the permissioned Redbridge Oracle L1 occur seemingly in opposition to the best interests of the Redbridge Oracle community, for instance, the removal of Alice's node without cause (just one of many examples), indicating that Red may have been compromised by bribery or coercion, that **A-12** can no longer be treated as authoritative without revalidation, and that chain governance can no longer be trusted.
 
-**Verifier:** The ZavaX Oracle Community, through ad hoc means.
+**Verifier:** The Redbridge Oracle Community, through ad hoc means.
 
-**Decision-maker:** The ZavaX Oracle Community initiates an orderly fork of the platform and blockchain without Red, including bringing down and/or rebuilding the affected web servers, proxy servers, and nodes as needed. How exactly the Community decides and does this is left up to them. Canonical source data from the Zcash chain is recoverable, but new blocks cannot be reported until ZavaX block production resumes.
+**Decision-maker:** The Redbridge Oracle Community initiates an orderly fork of the platform and blockchain without Red, including bringing down and/or rebuilding the affected web servers, proxy servers, and nodes as needed. How exactly the Community decides and does this is left up to them. Canonical source data from the Zcash chain is recoverable, but new blocks cannot be reported until ZavaX block production resumes.
 
 **Recovery trigger:** Return the rebuilt platform to service only after the forked environment is fully synchronized, trusted administration control has been re-established, and validator and dependent services have been rebuilt and verified. Recovery is expected to take up to about one week, with the limiting step being initial synchronization of a new Zebra instance with the Zcash blockchain.
 
@@ -649,7 +649,7 @@ For reference:
 | US-07 | DaveB attempts to perform a DDoS attack against one, two, or three ZavaX nodes |
 | US-08 | DaveC attempts to perform a DDoS attack against Walter's web server |
 | US-09 | Sybil attempts to cause a Zcash chain split that includes all three ZavaX nodes for one hour |
-| US-10 | Red's private keys for administering the permissioned ZavaX Oracle L1 are stolen |
+| US-10 | Red's private keys for administering the permissioned Redbridge Oracle L1 are stolen |
 
 ### Collusion Matrix
 
@@ -672,7 +672,7 @@ Key: Consequences of `row` then `column` are: `+` = additive, `·` = multiplicat
 
 ## Summary
 
-The ZavaX Oracle platform can be attacked in a number of ways, and as a three-node L1, it is especially vulnerable. One can see that all of these attacks' feasibility and impact could be mitigated, sometimes by orders of magnitude, *by just increasing the size of the network.*
+The Redbridge Oracle platform can be attacked in a number of ways, and as a three-node L1, it is especially vulnerable. One can see that all of these attacks' feasibility and impact could be mitigated, sometimes by orders of magnitude, *by just increasing the size of the network.*
 
 Also, only under **the most severe attacks**:
 

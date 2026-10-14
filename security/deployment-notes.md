@@ -1,11 +1,11 @@
 
 
  # Configuration Notes for Nodes, RPC Proxies, Web Servers, and Firewalls
- Here is a diagram showing the current ZavaX Oracle platform topology, excluding firewalls. The notes in this document elaborate on this diagram.
+ Here is a diagram showing the current Redbridge Oracle platform topology, excluding firewalls. The notes in this document elaborate on this diagram.
 
 ![Can't display the diagram](images/ZavaXOracleDeployment.png)
 ## TCP Port Usage
-Here is how TCP ports are used in the ZavaX Oracle platform.
+Here is how TCP ports are used in the Redbridge Oracle platform.
 - **443** - HTTPS for web servers.
 - **8233** - Zcashd node peer-to-peer communication.
 - **9650** - Unprotected Avalanchego RPC port.
@@ -126,7 +126,7 @@ ufw default deny outgoing
 
 # Allow inbound TCP on ports 19650 and 14851 from anywhere
 # (Or replace with this alternative command to restrict access to just the webserver # (add IP and uncomment):)
-# ufw allow in [zavax-oracle webserver] port 19650 proto tcp
+# ufw allow in [redbridge-oracle webserver] port 19650 proto tcp
 ufw allow in 19650/tcp
 
 # Allow inbound SSH on custom port 14851
@@ -198,7 +198,7 @@ ufw logging on
 
 ## Possible Future Enhancements
 
-These enhancements would further harden the ZavaX Oracle platform.
+These enhancements would further harden the Redbridge Oracle platform.
 
 ### SSH
 Secure SSH with Fail2Ban

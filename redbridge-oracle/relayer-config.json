@@ -1,0 +1,108 @@
+{
+  "log-level": "info",
+  "storage-location": "./.icm-relayer-storage",
+  "api-port": 8080,
+  "metrics-port": 9090,
+  "db-write-interval-seconds": 10,
+  "p-chain-api": {
+    "base-url": "https://api.avax-test.network"
+  },
+  "info-api": {
+    "base-url": "https://api.avax-test.network"
+  },
+  "manually-tracked-peers": [
+    {
+      "id": "NodeID-DtcSfCcUiFj6GkUsUnVPKbmua9sASRVHH",
+      "ip": "66.67.166.71:9651"
+    },
+    {
+      "id": "NodeID-K6x11ENGU1FuxYQRnR5vftJYQAGNm5CJk",
+      "ip": "74.74.146.78:9651"
+    },
+    {
+      "id": "NodeID-CiN3UH7Zx14U3vDUmuskKLvHfNPwxymqZ",
+      "ip": "140.82.43.136:9651"
+    }
+  ],
+  "source-blockchains": [
+    {
+      "subnet-id": "11111111111111111111111111111111LpoYY",
+      "blockchain-id": "yH8D7ThNJkxmtkuv2jgBa4P1Rn3Qpr4pPr7QYNfcdoS6k6HWp",
+      "rpc-endpoint": {
+        "base-url": "https://api.avax-test.network/ext/bc/C/rpc"
+      },
+      "ws-endpoint": {
+        "base-url": "wss://api.avax-test.network/ext/bc/C/ws"
+      },
+      "message-contracts": {
+        "0xbe9B526e00a6a4172E88A3DcE083e2512ABf747c": {
+          "message-format": "warp-gateway",
+          "settings": {
+            "destination-blockchain-id": "8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq"
+          }
+        }
+      }
+    },
+    {
+      "subnet-id": "EAGjhetxF6gAo3AhYCFuw5e1vJbVY2QMNNHabrubeuBvUjBfj",
+      "blockchain-id": "8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq",
+      "vm-type": "warpmsgvm",
+      "rpc-endpoint": {
+        "base-url": "https://zavax-node3-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/rpc"
+      },
+      "validator-warp-endpoints": [
+        "https://zavax-node1-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/warp",
+        "https://zavax-node2-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/warp",
+        "https://zavax-node3-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/warp"
+      ],
+      "supported-destinations": [
+        {
+          "blockchain-id": "yH8D7ThNJkxmtkuv2jgBa4P1Rn3Qpr4pPr7QYNfcdoS6k6HWp"
+        }
+      ]
+    }
+  ],
+  "destination-blockchains": [
+    {
+      "subnet-id": "EAGjhetxF6gAo3AhYCFuw5e1vJbVY2QMNNHabrubeuBvUjBfj",
+      "blockchain-id": "8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq",
+      "vm-type": "warpmsgvm",
+      "warp-rpc-method": "zavax.postWarpMessage",
+      "rpc-endpoint": {
+        "base-url": "https://zavax-node2-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/rpc"
+      },
+      "validator-endpoints": [
+        {
+          "validation-id": "PCunNrsdVYSZdvzY2Mazf7ma2zRA7nCaF5n1vZy1RzmFx1Mxd",
+          "rpc-endpoint": {
+            "base-url": "https://zavax-node1-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/rpc"
+          }
+        },
+        {
+          "validation-id": "ZXuJnhjkNFo4xRyUbhAozXgcYTyaFRJDMWqRpCcj7HHjx2v1S",
+          "rpc-endpoint": {
+            "base-url": "https://zavax-node2-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/rpc"
+          }
+        },
+        {
+          "validation-id": "n1oYUYe4Z11TxVDceS1CSpnxKpjEXqBnYYYRBZsnyh8mbtxJy",
+          "rpc-endpoint": {
+            "base-url": "https://zavax-node3-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/rpc"
+          }
+        }
+      ],
+      "tls-skip-verify": true
+    },
+    {
+      "subnet-id": "11111111111111111111111111111111LpoYY",
+      "blockchain-id": "yH8D7ThNJkxmtkuv2jgBa4P1Rn3Qpr4pPr7QYNfcdoS6k6HWp",
+      "rpc-endpoint": {
+        "base-url": "https://api.avax-test.network/ext/bc/C/rpc"
+      },
+      "account-private-key": "0x4b8c6a0b7b1e574b068e26c39763335b99f01dd35199518ec245385270924a56",
+      "vm-warp-receiver-address": "0x0D05e998197487bE5a4104CB706dF92CCB41b14d",
+      "vm-warp-gas-limit": 500000
+    }
+  ],
+  "process-missed-blocks": true
+}

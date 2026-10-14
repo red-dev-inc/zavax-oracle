@@ -1,0 +1,10 @@
+{
+  "network": "mainnet",
+  "chainId": 43114,
+  "chainName": "Avalanche C-Chain",
+  "cChainRPC": "https://api.avax.network/ext/bc/C/rpc",
+  "blockExplorerUrl": "https://snowtrace.io/",
+  "feeTokenAddr": "",
+  "gatewayAddr": "",
+  "vmChainID": ""
+}

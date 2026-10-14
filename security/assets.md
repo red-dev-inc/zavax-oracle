@@ -9,6 +9,6 @@
 | A-07 | RPC Proxy 3 (Carol) |
 | A-08 | Public web server (Walter) |
 | A-09 | Unpublished web server (Xavier) |
-| A-10 | ZavaX Oracle chain state |
+| A-10 | Redbridge Oracle chain state |
 | A-11 | Zebra/Zcash data feed inputs |
 | A-12 | Red monitoring and incident-response capability |

@@ -1,0 +1,10 @@
+{
+  "network": "fuji",
+  "chainId": 43113,
+  "chainName": "Avalanche Fuji Testnet",
+  "cChainRPC": "https://api.avax-test.network/ext/bc/C/rpc",
+  "blockExplorerUrl": "https://testnet.snowtrace.io/",
+  "feeTokenAddr": "0x9E986B5Aec7F256A33D9172cedACe64b7FCEd4DC",
+  "gatewayAddr": "0xbe9B526e00a6a4172E88A3DcE083e2512ABf747c",
+  "vmChainID": "8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq"
+}
