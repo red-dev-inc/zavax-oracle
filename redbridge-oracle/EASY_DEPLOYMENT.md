@@ -48,8 +48,8 @@ One server running two Docker containers side by side:
 | Zcash network | Zcash **Mainnet** | The Zcash chain your Zcash node must follow |
 | Docker image | `reddev2020/redbridge-oracle-node:v1.0.0-fuji` | The image you'll run |
 
-All of these are already built into the image — you don't need to type them
-anywhere except when joining as a validator (Step 6).
+All of these are already built into the image. The only time you need to enter
+them yourself is when joining as a validator in Step 6.
 
 ### Default configuration and locations
 
@@ -89,7 +89,7 @@ This guide uses these defaults. Everything big lives on the data disk, mounted a
 
 ---
 
-## Step 1 — Prepare the server
+## Step 1: Prepare the server
 
 ### 1.1 Update the system and install tools
 
@@ -172,17 +172,17 @@ Also open 9651 and 8233 in your cloud provider's firewall / security group.
 
 ---
 
-## Step 2 — Set up the Zcash node (Zebra)
+## Step 2: Set up the Zcash node (Zebra)
 
 ### Why is this needed?
 
 Every validator double-checks every block. When another validator proposes
-"Zcash block #2,900,000 has hash X", your node asks **its own** Zcash node for
-block #2,900,000 and compares. If your node can't reach a Zcash node, it rejects
+"Zcash block #1000 has hash X", your node asks **its own** Zcash node for
+block #1000 and compares. If your node can't reach a Zcash node, it rejects
 every block and **cannot validate** — even though AvalancheGo still starts and
 looks healthy. This is the most common setup mistake.
 
-This guide runs Zebra (the Zcash Foundation's node) in Docker on the same server
+This guide runs Zebra (the Zcash Foundation's node software) in Docker on the same server
 — the simplest and most reliable option. It needs about **300 GB** of disk.
 
 ### 2.1 Create Zebra's folders
@@ -296,7 +296,7 @@ Zebra documentation: <a href="https://zebra.zfnd.org/" target="_blank" rel="noop
 
 ---
 
-## Step 3 — Start the redbridge-oracle node
+## Step 3: Start the redbridge-oracle node
 
 ### 3.1 Create the node's data folder
 
@@ -369,7 +369,7 @@ full list, for reference:
 
 ---
 
-## Step 4 — Back up your validator identity
+## Step 4: Back up your validator identity
 
 Do this once, right after the first start. Your node's identity is in the
 `staking` folder (`staker.key`, `staker.crt`, `signer.key`). **If you lose these
@@ -384,7 +384,7 @@ server** (it is a secret — treat it like a password).
 
 ---
 
-## Step 5 — Check that it's working
+## Step 5: Check that it's working
 
 ### 5.1 Watch the logs
 
@@ -441,7 +441,7 @@ Any of these answers means the chain is working:
 
 ---
 
-## Step 6 — Join as a validator
+## Step 6: Join as a validator
 
 Once **all chains are bootstrapped** (Step 5.2), the node can be registered as a
 validator of the redbridge-oracle L1.
@@ -555,7 +555,7 @@ Your `nodeID` should be in the result.
 
 ---
 
-## Step 7 — Remove your validator (leave the L1)
+## Step 7: Remove your validator (leave the L1)
 
 Do this when you want to stop validating and get your **100,000 RBR stake**
 back. Removal is the same kind of multi-step flow as joining, in the Avalanche
@@ -593,7 +593,7 @@ might rejoin later with the same NodeID.
 
 ---
 
-## Step 8 — Everyday tasks
+## Step 8: Everyday tasks
 
 See if it's running:
 
