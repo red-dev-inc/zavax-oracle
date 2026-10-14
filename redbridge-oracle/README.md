@@ -1,9 +1,14 @@
-# Zcash Bridge VM
+# redbridge-oracle VM
 
-A production-grade custom Avalanche VM that bridges Zcash block data onto an Avalanche L1 using **Snowman (linear chain) consensus**. Compatible with **AvalancheGo v1.14.0**.
+This is the custom Avalanche VM behind Redbridge Oracle. It runs as an
+AvalancheGo plugin, uses Snowman (linear chain) consensus and stores Zcash
+block data on an Avalanche L1. It's built against AvalancheGo v1.15.0.
 
-## Architecture
+If you just want to run a validator, start with
+[EASY_DEPLOYMENT.md](EASY_DEPLOYMENT.md). This README covers how the VM works
+and how to develop it.
 
+## How it works
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -38,6 +43,8 @@ A production-grade custom Avalanche VM that bridges Zcash block data onto an Ava
                     └─────────────┘
 ```
 
+A request goes through the system like this:
+
 ```
 ZcashHeightGateway (C-Chain)
   │  warp message: abi.encode(height, sender)
@@ -53,15 +60,20 @@ Accept():  persist block + emit outbound warp message
 VMWarpRelayer  →  VMWarpReceiver.receiveWarpMessage()  (C-Chain)
 ```
 
-### Key Design Points
+Some design decisions to be aware of:
 
-- **ICM-driven bridging**: heights enter the VM only through BLS-verified warp messages. Direct API calls cannot trigger bridging.
-- **Warp self-signing**: messages from C-Chain are signed by this subnet's own validators (`vm.ctx.SubnetID`).
-- **Deterministic blocks**: no `time.Now()` — timestamps come from the Zcash block, ensuring all validators produce byte-identical blocks.
-- **Confirmation depth**: the VM rejects heights within 24 blocks of the Zcash tip (configurable).
-- **Outbound persistence**: outbound warp messages are written to LevelDB before emitting so they survive restarts.
+- Heights can only enter the VM through a BLS-verified Warp message. You can't
+  trigger a bridge by calling the API directly.
+- Messages coming from the C-Chain are checked against the signatures of this
+  subnet's own validators (`vm.ctx.SubnetID`).
+- Block building never calls `time.Now()`. The timestamp comes from the Zcash
+  block, so every validator builds byte-identical blocks.
+- Heights within 24 blocks of the Zcash tip are rejected. The depth is
+  configurable.
+- Outbound Warp messages are written to LevelDB before they're emitted, so they
+  survive a restart.
 
-## Project Structure
+## Layout
 
 ```
 redbridge-oracle/
@@ -75,16 +87,16 @@ redbridge-oracle/
 │   ├── api.go            # JSON-RPC handler (getBlockByHeight, postWarpMessage, …)
 │   ├── warp_ingress.go   # BLS verification + AddressedCall unwrap + payload decode
 │   ├── warp_payload.go   # ABI codec helpers (InboundPayload, OutboundPayload)
+│   ├── uptime_*.go       # Validator uptime tracking
 │   ├── config.go         # Config struct from vm-config.json
 │   ├── metrics.go        # Prometheus counters and histograms
-│   ├── vm_test.go        # Core VM unit tests
-│   └── vm_warp_test.go   # Warp ingress / outbound message tests
+│   └── *_test.go
 └── zcash/
     ├── client.go         # Zcash JSON-RPC client with retries
     └── mock.go           # Mock client for unit tests
 ```
 
-## Block Binary Format
+## Block format
 
 ```
 Offset  Size   Field
@@ -97,11 +109,12 @@ Offset  Size   Field
 59      N      zcashHash (UTF-8)
 ```
 
-Block ID = `SHA-256(serialized_bytes)`
+The block ID is `SHA-256` of the serialized bytes.
 
 ## Configuration
 
-`vm-config.json` is passed as `configBytes` during VM initialization:
+The VM reads its config from `vm-config.json`, which AvalancheGo passes in as
+`configBytes`:
 
 ```json
 {
@@ -112,22 +125,19 @@ Block ID = `SHA-256(serialized_bytes)`
 }
 ```
 
-| Field | Default | Description |
-|---|---|---|
-| `zcashRpcEndpoint` | `http://127.0.0.1:8232` | Zcash node JSON-RPC URL |
-| `zcashRpcUser` | (empty) | RPC auth username |
-| `zcashRpcPassword` | (empty) | RPC auth password |
-| `confirmationDepth` | `24` | Min confirmations before a height is accepted |
+`zcashRpcEndpoint` defaults to `http://127.0.0.1:8232`. The user and password
+are empty by default and are only needed if your Zcash RPC requires them.
+`confirmationDepth` defaults to 24.
 
 ## API
 
-All methods are served at `/ext/bc/<BLOCKCHAIN_ID>/rpc`.
+Every method is served at `/ext/bc/<BLOCKCHAIN_ID>/rpc`, except
+`warp_getMessageSignature`, which is served at `/warp`.
 
----
+### zavax.getBlockByHeight
 
-### `zavax.getBlockByHeight`
-
-Read Zcash block data for an accepted height, or check its bridging status.
+Returns the Zcash block data for an accepted height. If the height hasn't been
+accepted, it returns the height's status instead.
 
 ```bash
 curl -s -X POST <RPC_URL> \
@@ -135,7 +145,6 @@ curl -s -X POST <RPC_URL> \
   -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getBlockByHeight","params":{"height":1000}}'
 ```
 
-**Response — accepted:**
 ```json
 {
   "result": {
@@ -148,36 +157,25 @@ curl -s -X POST <RPC_URL> \
 }
 ```
 
-**Response — pending / not found:**
-```json
-{ "result": { "status": "pending" } }
-{ "result": { "status": "not_found" } }
-```
+If the height hasn't been bridged, you get `{"status": "pending"}` or
+`{"status": "not_found"}` instead.
 
----
+### zavax.postWarpMessage
 
-### `zavax.postWarpMessage`
-
-Called by the ICM relayer to deliver a BLS-signed warp message from C-Chain.
+The ICM relayer calls this method to deliver a signed Warp message from the
+C-Chain. It returns `pending` or `already_accepted`.
 
 ```bash
 curl -s -X POST <RPC_URL> \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"zavax.postWarpMessage","params":{"warpMessage":"0x..."}}'
+# → { "result": { "status": "pending", "height": 1000 } }
 ```
 
-**Response:**
-```json
-{ "result": { "status": "pending", "height": 1000 } }
-```
+### zavax.getBlock
 
-Possible statuses: `pending`, `already_accepted`.
-
----
-
-### `zavax.getBlock`
-
-Fetch a block by its Avalanche block ID (omit `blockId` for the latest accepted block).
+Looks up a block by its Avalanche block ID. If you leave out `blockId`, it
+returns the latest accepted block.
 
 ```bash
 curl -s -X POST <RPC_URL> \
@@ -185,11 +183,10 @@ curl -s -X POST <RPC_URL> \
   -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getBlock","params":{"blockId":"2XkFB5..."}}'
 ```
 
----
+### zavax.reconcileBlocks
 
-### `zavax.reconcileBlocks`
-
-Compare every stored Zcash block hash against the live Zcash node and report mismatches.
+Compares every stored Zcash hash with the live Zcash node and reports any
+mismatches.
 
 ```bash
 curl -s -X POST <RPC_URL> \
@@ -197,35 +194,27 @@ curl -s -X POST <RPC_URL> \
   -d '{"jsonrpc":"2.0","id":1,"method":"zavax.reconcileBlocks","params":{}}'
 ```
 
----
+### zavax.getOutboundWarpMessages / zavax.deleteOutboundWarpMessage
 
-### `zavax.getOutboundWarpMessages`
-
-Return pending outbound warp messages at or above a given Avalanche block height (used by the VMWarpRelayer cursor).
+The VMWarpRelayer uses these two methods. `getOutboundWarpMessages` returns the
+pending outbound messages at or above an Avalanche height.
+`deleteOutboundWarpMessage` removes a message from memory and from LevelDB
+once it has been delivered.
 
 ```bash
 curl -s -X POST <RPC_URL> \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getOutboundWarpMessages","params":{"fromHeight":0}}'
-```
 
----
-
-### `zavax.deleteOutboundWarpMessage`
-
-Remove a delivered outbound message from the in-memory outbox and LevelDB (called by VMWarpRelayer after delivery).
-
-```bash
 curl -s -X POST <RPC_URL> \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"zavax.deleteOutboundWarpMessage","params":{"messageId":"0x...","blockHeight":42}}'
 ```
 
----
+### warp_getMessageSignature
 
-### `/warp` — `warp_getMessageSignature`
-
-BLS-sign an outbound warp message. Called by the VMWarpRelayer on each validator's `/warp` endpoint.
+Signs an outbound Warp message with the node's BLS key. The VMWarpRelayer
+calls this on every validator.
 
 ```bash
 curl -s -X POST <NODE_URL>/ext/bc/<BLOCKCHAIN_ID>/warp \
@@ -233,112 +222,91 @@ curl -s -X POST <NODE_URL>/ext/bc/<BLOCKCHAIN_ID>/warp \
   -d '{"jsonrpc":"2.0","id":1,"method":"warp_getMessageSignature","params":{"messageID":"0x...","unsignedMessage":"0x..."}}'
 ```
 
-## Building
+## Building and testing
 
 ```bash
-# Build the VM plugin binary → build/plugins/<VM_ID>
-./scripts/build.sh
-
-# Run all tests
+./scripts/build.sh                          # → build/plugins/<VM_ID>
 go test ./vm/... ./zcash/... -v -race
-
-# Run a single test
-go test ./vm/... -run TestBuildBlock -v
+go test ./vm/... -run TestBuildBlock -v     # single test
 ```
 
-## Running a Local Network
+The tests cover block serialization and ID determinism, genesis, the full
+flow (postWarpMessage → BuildBlock → Accept → getBlockByHeight), outbound
+message persistence, duplicate heights, the 24-block depth rule, mempool dedup,
+concurrent API access and timestamp determinism (`max(parent+1, zcashTime)`).
 
-`scripts/run.sh` bootstraps a **5-validator Avalanche network** via
-[Avalanche Network Runner](https://github.com/ava-labs/avalanche-network-runner),
-deploys the VM as a custom Avalanche L1 chain, and prints ready-to-use curl commands.
+## Running a local network
 
-### Quick Start (Mock Zcash)
-
-By default the script starts a built-in mock Zcash RPC server so no
-external node is needed:
+`scripts/run.sh` uses
+[Avalanche Network Runner](https://github.com/ava-labs/avalanche-network-runner)
+to start a 5-validator network, deploys the VM as an L1 and prints the RPC URL.
+By default it also starts a mock Zcash server, so you don't need a real Zcash
+node.
 
 ```bash
 ./scripts/run.sh
 
-# Use a real Zcash node
+# against a real Zcash node instead
 ZCASH_RPC_ENDPOINT="http://user:pass@127.0.0.1:8232" ./scripts/run.sh
 ```
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `ZCASH_RPC_ENDPOINT` | *(empty — use mock)* | Zcash node JSON-RPC URL. When set, the mock server is skipped entirely. |
-| `ZCASH_CONF_DEPTH` | `24` | Confirmation depth passed to the VM config. |
-| `AVALANCHEGO_PATH` | `$GOPATH/bin/avalanchego` | Path to an existing AvalancheGo binary. If missing, the script builds v1.15.0 from source. |
-| `ANR_PORT` | `8097` | ANR gRPC server port. |
-| `MOCK_ZCASH_PORT` | `18232` | Port for the built-in mock Zcash server (only used when `ZCASH_RPC_ENDPOINT` is empty). |
+The script reads these environment variables:
 
-### Example Curl Commands
+- `ZCASH_RPC_ENDPOINT`: a real Zcash node. If it's set, the mock server is
+  skipped.
+- `ZCASH_CONF_DEPTH`: the confirmation depth (default `24`).
+- `AVALANCHEGO_PATH`: the AvalancheGo binary (default `$GOPATH/bin/avalanchego`).
+  If it's missing, the script builds v1.15.0 from source.
+- `ANR_PORT`: the ANR gRPC port (default `8097`).
+- `MOCK_ZCASH_PORT`: the mock Zcash port (default `18232`).
 
-Once the network is running the script prints the full RPC URL. You can
-also use it directly:
+Once the network is up, you can try it out. The mock chain has 2000 blocks, so
+height 1990 is within the 24-block depth and should be rejected:
 
 ```bash
-# Bridge Zcash block height 1000
 curl -s -X POST 'http://127.0.0.1:9650/ext/bc/<BLOCKCHAIN_ID>/rpc' \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getBlockByHeight","params":{"height":1000}}' \
   | python3 -m json.tool
 
-# Test too-recent height rejection (mock has 2000 blocks, depth=24)
 curl -s -X POST 'http://127.0.0.1:9650/ext/bc/<BLOCKCHAIN_ID>/rpc' \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"zavax.getBlockByHeight","params":{"height":1990}}' \
   | python3 -m json.tool
 ```
 
-> Replace `<BLOCKCHAIN_ID>` with the ID printed by the script, or query
-> it from ANR: `avalanche-network-runner control status --endpoint=0.0.0.0:8097`
+The script prints the blockchain ID. You can also get it with
+`avalanche-network-runner control status --endpoint=0.0.0.0:8097`. Press Ctrl-C
+to stop everything.
 
-Press **Ctrl-C** to stop all nodes and clean up.
+## Running it under AvalancheGo yourself
 
-## Registering with AvalancheGo
+Every node that runs this VM needs its own synced Zcash node with RPC enabled.
+`Block.Verify()` fetches the Zcash data again for every block, so without a
+working Zcash connection the node rejects everything. For production setups,
+see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-> **Prerequisite:** every node running this VM needs its own synced Zcash node
-> (Zebra) with JSON-RPC enabled, configured via `zcashRpcEndpoint`. `Block.Verify()`
-> re-fetches each block's Zcash data from it, so without a working Zcash RPC the
-> node rejects every block. For production deployment (Docker or manual) see
-> [DEPLOYMENT.md](DEPLOYMENT.md) / [EASY_DEPLOYMENT.md](EASY_DEPLOYMENT.md).
+1. Build the plugin.
+2. Work out the VM ID (for example, by hashing the VM name).
+3. Add the binary to AvalancheGo's VM alias config:
 
-1. Build the plugin binary.
-2. Determine your VM ID (e.g., by hashing the VM name).
-3. Add the binary path to AvalancheGo's VM alias config:
+   ```json
+   {
+     "YOUR_VM_ID": "/path/to/zcash-bridge-vm"
+   }
+   ```
 
-```json
-{
-  "YOUR_VM_ID": "/path/to/zcash-bridge-vm"
-}
-```
+4. Create the L1 and blockchain through the Platform API.
 
-4. Create a Avalanche L1 and blockchain using the Avalanche Platform API.
+## Metrics
 
-## Prometheus Metrics
+The VM exports these Prometheus metrics:
 
-| Metric | Type | Description |
-|---|---|---|
-| `zcash_bridge_blocks_built_total` | Counter | Blocks built by BuildBlock |
-| `zcash_bridge_blocks_accepted_total` | Counter | Blocks accepted via consensus |
-| `zcash_bridge_blocks_rejected_total` | Counter | Blocks rejected via consensus |
-| `zcash_bridge_zcash_fetch_duration_seconds` | Histogram | Zcash RPC fetch latency |
-| `zcash_bridge_duplicate_requests_total` | Counter | Duplicate height requests |
-| `zcash_bridge_api_requests_total` | Counter | API request counts (labels: method, status) |
-
-## Test Coverage
-
-- Block serialization round-trip
-- Block ID determinism
-- Genesis creation
-- Full warp flow: postWarpMessage → BuildBlock → Accept → getBlockByHeight
-- Outbound warp emission and persistence
-- Duplicate height rejection
-- 24-block finality rule enforcement
-- Mempool dedup
-- Concurrent API access
-- Timestamp determinism (`max(parent+1, zcashTime)`)
+- `zcash_bridge_blocks_built_total`, `zcash_bridge_blocks_accepted_total` and
+  `zcash_bridge_blocks_rejected_total` (counters)
+- `zcash_bridge_zcash_fetch_duration_seconds` (histogram of Zcash RPC latency)
+- `zcash_bridge_duplicate_requests_total` (counter)
+- `zcash_bridge_api_requests_total` (counter, labeled by `method` and `status`)
 
 ## License
 
