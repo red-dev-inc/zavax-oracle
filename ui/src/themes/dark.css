@@ -1,0 +1,193 @@
+/* ── theme: dark ───────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --border: #FFFFFF;
+}
+
+[data-theme="dark"] body {
+  background: url('../assets/themes/dark/background-dark.svg') center top / cover no-repeat fixed;
+}
+
+[data-theme="dark"] .header-description p {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .title-text {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .card {
+  background: rgba(46, 46, 46, 0.6);
+}
+
+[data-theme="dark"] .node-select {
+  color: #FFFFFF;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23FFFFFF' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .node-select.placeholder {
+  color: var(--muted);
+}
+
+[data-theme="dark"] .node-dropdown-list {
+  background: #2E2E2E;
+  border-color: #FFFFFF;
+}
+
+[data-theme="dark"] .node-dropdown-option {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .node-dropdown-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .node-dropdown-option.selected {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+[data-theme="dark"] .block-data-labels p {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .footer-link {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .results-header {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .height-input {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .card h2 {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .node-select:focus,
+[data-theme="dark"] .height-input:focus {
+  border-color: #D9D9D9;
+}
+
+[data-theme="dark"] .btn-primary {
+  background: #EC3C39;
+  border-color: #EC3C39;
+  color: #F9F9F9;
+}
+
+[data-theme="dark"] .btn-primary:hover:not(:disabled) {
+  background: #d4312f;
+  border-color: #d4312f;
+}
+
+[data-theme="dark"] .btn-secondary {
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .wallet-btn,
+[data-theme="dark"] .wallet-btn.connected {
+  background: transparent;
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .wallet-btn:hover,
+[data-theme="dark"] .wallet-btn.connected:hover {
+  background: transparent;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .tx-feedback .mono.small {
+  color: #FFFFFF;
+  opacity: 0.8;
+}
+
+[data-theme="dark"] .btn-ghost {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .btn-ghost:hover:not(:disabled) {
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .dot.green {
+  background: #FFFFFF;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .height-block {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .json-block {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .height-label {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .status-badge.accepted,
+[data-theme="dark"] .status-badge.pending,
+[data-theme="dark"] .status-badge.not_found {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .field-row .field-key,
+[data-theme="dark"] .field-row .field-val,
+[data-theme="dark"] .data-section-label,
+[data-theme="dark"] .json-block {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .bg-shapes {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .shape-38 {
+  position: absolute;
+  top: -3.52vh;
+  left: -40.26vw;
+  width: 95.19vw;
+  height: auto;
+}
+
+[data-theme="dark"] .shape-32 {
+  position: absolute;
+  top: 45.19vh;
+  left: 0;
+  width: 106.09vw;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  [data-theme="dark"] .shape-38 {
+    top: auto;
+    bottom: -45vw;
+    left: -38vw;
+    width: 105vw;
+    height: auto;
+  }
+
+  [data-theme="dark"] .shape-32 {
+    top: auto;
+    bottom: -20vw;
+    left: 0;
+    width: 150vw;
+    height: auto;
+  }
+}

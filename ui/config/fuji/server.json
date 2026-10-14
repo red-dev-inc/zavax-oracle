@@ -1,0 +1,24 @@
+{
+  "pchainRpc": "https://api.avax-test.network/ext/bc/P",
+  "subnetId": "EAGjhetxF6gAo3AhYCFuw5e1vJbVY2QMNNHabrubeuBvUjBfj",
+  "nodes": [
+    {
+      "id": 1,
+      "nodeID": "NodeID-DtcSfCcUiFj6GkUsUnVPKbmua9sASRVHH",
+      "label": "red·bridge Node 1",
+      "rpcUrl": "https://zavax-node1-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/rpc"
+    },
+    {
+      "id": 2,
+      "nodeID": "NodeID-K6x11ENGU1FuxYQRnR5vftJYQAGNm5CJk",
+      "label": "red·bridge Node 2",
+      "rpcUrl": "https://zavax-node2-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/rpc"
+    },
+    {
+      "id": 3,
+      "nodeID": "NodeID-CiN3UH7Zx14U3vDUmuskKLvHfNPwxymqZ",
+      "label": "red·bridge Node 3",
+      "rpcUrl": "https://zavax-node3-proxy.red.dev:19650/ext/bc/8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq/rpc"
+    }
+  ]
+}

@@ -1,0 +1,462 @@
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+        "height": 75,
+        "matched": 75,
+        "mismatched": 0,
+        "errors": 0,
+        "details": [
+            {
+                "zcashHeight": 2,
+                "storedHash": "0002a26c902619fc964443264feb16f1e3e2d71322fc53dcb81cc5d797e273ed",
+                "nodeHash": "0002a26c902619fc964443264feb16f1e3e2d71322fc53dcb81cc5d797e273ed",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 213,
+                "storedHash": "00000a812bd1bda13d738af81d2d19400b4b83d83840ed614300393ed7673716",
+                "nodeHash": "00000a812bd1bda13d738af81d2d19400b4b83d83840ed614300393ed7673716",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 214,
+                "storedHash": "000003ed3fe36c6546e67023491fa1c574236d08b0d0f8fb8b8c7af74fe847e0",
+                "nodeHash": "000003ed3fe36c6546e67023491fa1c574236d08b0d0f8fb8b8c7af74fe847e0",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 215,
+                "storedHash": "00000a36b3e4a18ddcc01af584dda7d95481f038dd3061019a52ea65bc8c1c92",
+                "nodeHash": "00000a36b3e4a18ddcc01af584dda7d95481f038dd3061019a52ea65bc8c1c92",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 234,
+                "storedHash": "000008d83d65b7e9efe85181b330b94aeb0b6eab183411daaac48b88374d2747",
+                "nodeHash": "000008d83d65b7e9efe85181b330b94aeb0b6eab183411daaac48b88374d2747",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 243,
+                "storedHash": "0000049319d73ab54ee4c409abdfbc728807234f446255a67e546bde6032a25c",
+                "nodeHash": "0000049319d73ab54ee4c409abdfbc728807234f446255a67e546bde6032a25c",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 244,
+                "storedHash": "00000d8812e5f4021ee3cbd11163b2aed9d8a49d5dbc4a6a4b062ff6e0c1509b",
+                "nodeHash": "00000d8812e5f4021ee3cbd11163b2aed9d8a49d5dbc4a6a4b062ff6e0c1509b",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 1000,
+                "storedHash": "0000000b70480327694608408728c65c1f1a300bfe705b01baca0f5504092e1b",
+                "nodeHash": "0000000b70480327694608408728c65c1f1a300bfe705b01baca0f5504092e1b",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 1234,
+                "storedHash": "0000000b77bbb55dc9f5d79b651cd502e6431451cff702a95f3580e6714fd33e",
+                "nodeHash": "0000000b77bbb55dc9f5d79b651cd502e6431451cff702a95f3580e6714fd33e",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 2000,
+                "storedHash": "00000006943381ec2cce0eaffa33d6942f7dc5aca5709ceaeb12965a128b388c",
+                "nodeHash": "00000006943381ec2cce0eaffa33d6942f7dc5aca5709ceaeb12965a128b388c",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 2312,
+                "storedHash": "000000028f2f9ca56242c203162d9c71a7f23c9020773ec70a82da3e6a4812ae",
+                "nodeHash": "000000028f2f9ca56242c203162d9c71a7f23c9020773ec70a82da3e6a4812ae",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 2313,
+                "storedHash": "00000006b687589700d15b361a7522e401f220bc16c540ffa7dcfb64baf0bcc6",
+                "nodeHash": "00000006b687589700d15b361a7522e401f220bc16c540ffa7dcfb64baf0bcc6",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 2314,
+                "storedHash": "00000000927f211ee8631ea50964edeadc16183467e9eb7d6cb127403bcf6f15",
+                "nodeHash": "00000000927f211ee8631ea50964edeadc16183467e9eb7d6cb127403bcf6f15",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3000,
+                "storedHash": "000000018960787a8a9fb18f242d299c151f393cc24b3afddf8e1fa11c9b62fc",
+                "nodeHash": "000000018960787a8a9fb18f242d299c151f393cc24b3afddf8e1fa11c9b62fc",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3423,
+                "storedHash": "00000000cc848066cd5ff4f1e038c41ba37b70a215fa40aa5ad40d6ab08c82f7",
+                "nodeHash": "00000000cc848066cd5ff4f1e038c41ba37b70a215fa40aa5ad40d6ab08c82f7",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3424,
+                "storedHash": "00000004e380d47c18deb5edfbc38a5192ca7b75abd24c278737845b259145b7",
+                "nodeHash": "00000004e380d47c18deb5edfbc38a5192ca7b75abd24c278737845b259145b7",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3432,
+                "storedHash": "00000001440039f2dc960929b0480d1cde62e6cb8f69272434730b313b74a59a",
+                "nodeHash": "00000001440039f2dc960929b0480d1cde62e6cb8f69272434730b313b74a59a",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3433,
+                "storedHash": "00000005457c489e390db0f381c87a0b8d8533e495f3c54df1189d0e75aec45f",
+                "nodeHash": "00000005457c489e390db0f381c87a0b8d8533e495f3c54df1189d0e75aec45f",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3434,
+                "storedHash": "00000002ae5ba13aeb4c0574897d1bf5b503c8d084372157d5db6c1dd24f516b",
+                "nodeHash": "00000002ae5ba13aeb4c0574897d1bf5b503c8d084372157d5db6c1dd24f516b",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3436,
+                "storedHash": "00000004693f6d089cc05a708c7fe24ceb2c8bc3055b39b6990709517ea1091e",
+                "nodeHash": "00000004693f6d089cc05a708c7fe24ceb2c8bc3055b39b6990709517ea1091e",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3443,
+                "storedHash": "00000003c9560405e02a4d525895be21cf85365bbaed5042061c04827a74f03c",
+                "nodeHash": "00000003c9560405e02a4d525895be21cf85365bbaed5042061c04827a74f03c",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3444,
+                "storedHash": "0000000185f10a8a910e13df7965b910b45223beeefa2d490d0ccd099f72b4ef",
+                "nodeHash": "0000000185f10a8a910e13df7965b910b45223beeefa2d490d0ccd099f72b4ef",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3445,
+                "storedHash": "0000000059cf59f50f58afae8f23f070e64ecba0e7fc91a17198a6be03bf8898",
+                "nodeHash": "0000000059cf59f50f58afae8f23f070e64ecba0e7fc91a17198a6be03bf8898",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3446,
+                "storedHash": "00000001133064b621666db5302f938056dbb8a5f79016fcb5f61a6ab2236a34",
+                "nodeHash": "00000001133064b621666db5302f938056dbb8a5f79016fcb5f61a6ab2236a34",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3454,
+                "storedHash": "000000055d76eff61db24247780a96a0a2cd51dce7bfdc5b20b3a89cc1e3dab6",
+                "nodeHash": "000000055d76eff61db24247780a96a0a2cd51dce7bfdc5b20b3a89cc1e3dab6",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3455,
+                "storedHash": "0000000128a6a49c38a681102b681098b60c2240dcbba1c03e779ebfdda4ca23",
+                "nodeHash": "0000000128a6a49c38a681102b681098b60c2240dcbba1c03e779ebfdda4ca23",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3456,
+                "storedHash": "00000002cd68ca39b3133c8569aa68296d9ced19f29b3234106b5f55037fdd6a",
+                "nodeHash": "00000002cd68ca39b3133c8569aa68296d9ced19f29b3234106b5f55037fdd6a",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 4234,
+                "storedHash": "000000013df8fb8d2c2ff641b3386fdb2e791b93546afa0b58f3b95f5a583a3a",
+                "nodeHash": "000000013df8fb8d2c2ff641b3386fdb2e791b93546afa0b58f3b95f5a583a3a",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 4235,
+                "storedHash": "000000038f0f1551a24e1c81930fcdabf4d7e989bf0407f92b0183ada53c50c0",
+                "nodeHash": "000000038f0f1551a24e1c81930fcdabf4d7e989bf0407f92b0183ada53c50c0",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 4236,
+                "storedHash": "00000004955a666aaac97254169056b87cdf5802eabaaad5157a70b4cc96f17b",
+                "nodeHash": "00000004955a666aaac97254169056b87cdf5802eabaaad5157a70b4cc96f17b",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 4322,
+                "storedHash": "00000000e843ec3db5477ac79eae0b1a70fc9f211c65d404f3fec2fb301c2f4b",
+                "nodeHash": "00000000e843ec3db5477ac79eae0b1a70fc9f211c65d404f3fec2fb301c2f4b",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 4432,
+                "storedHash": "00000000212ba45baa9968635cd0b4b123b418b37c794d9cf06b9e60fd6eda58",
+                "nodeHash": "00000000212ba45baa9968635cd0b4b123b418b37c794d9cf06b9e60fd6eda58",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 5025,
+                "storedHash": "00000002a84579662807133bbbfeded48935aecf657284669a849d1fdbafe2b4",
+                "nodeHash": "00000002a84579662807133bbbfeded48935aecf657284669a849d1fdbafe2b4",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 7766,
+                "storedHash": "0000000244f50076a7f90314dc9221460ff6da91b0d7427deb5199ec6c2dbfa4",
+                "nodeHash": "0000000244f50076a7f90314dc9221460ff6da91b0d7427deb5199ec6c2dbfa4",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 7767,
+                "storedHash": "000000007555efc8c43c4155287f45e0cda30b193a59e1a96c2f3ac72905be6b",
+                "nodeHash": "000000007555efc8c43c4155287f45e0cda30b193a59e1a96c2f3ac72905be6b",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 7768,
+                "storedHash": "00000001d90584ddc567ebbb99f6567533064fe4cdb37c4923bdddb39f327f66",
+                "nodeHash": "00000001d90584ddc567ebbb99f6567533064fe4cdb37c4923bdddb39f327f66",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 23534,
+                "storedHash": "000000006ec3cefc5f7f8272d4559c5c26162dcb0134e6afeeac29ec8105e825",
+                "nodeHash": "000000006ec3cefc5f7f8272d4559c5c26162dcb0134e6afeeac29ec8105e825",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 32423,
+                "storedHash": "0000000075a2d0e300d8b5705c262e5aa9b5127acfd68042145ee1ade749bc29",
+                "nodeHash": "0000000075a2d0e300d8b5705c262e5aa9b5127acfd68042145ee1ade749bc29",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 33221,
+                "storedHash": "000000000f1bd13daec23cd5b0d93bb6989aa3fed356976d9cf34980cfcf97eb",
+                "nodeHash": "000000000f1bd13daec23cd5b0d93bb6989aa3fed356976d9cf34980cfcf97eb",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 33222,
+                "storedHash": "00000000418a3ea562a5cb8ea706f70712032319ab86679c4facfaa346c6db6f",
+                "nodeHash": "00000000418a3ea562a5cb8ea706f70712032319ab86679c4facfaa346c6db6f",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 33223,
+                "storedHash": "000000004a869b80d8318db36ed7373a6c1d164931c27f648ae73d1f8c841a27",
+                "nodeHash": "000000004a869b80d8318db36ed7373a6c1d164931c27f648ae73d1f8c841a27",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 34234,
+                "storedHash": "00000000624b02921182b84e002c8cda72f128b98ca3c57819beba60a92051ee",
+                "nodeHash": "00000000624b02921182b84e002c8cda72f128b98ca3c57819beba60a92051ee",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 43434,
+                "storedHash": "0000000000ba7702193b17e65931893d15a7f9713bba9a40b4dde7b7f58c8611",
+                "nodeHash": "0000000000ba7702193b17e65931893d15a7f9713bba9a40b4dde7b7f58c8611",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 43435,
+                "storedHash": "0000000025497666ac82db4d772f93d1b2c7613f2ed27f2e9bfef6e9b03c03a0",
+                "nodeHash": "0000000025497666ac82db4d772f93d1b2c7613f2ed27f2e9bfef6e9b03c03a0",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 43436,
+                "storedHash": "0000000073cc484eba84b02961418af4f6ce68615fae7ddc941d724e3a8fa4da",
+                "nodeHash": "0000000073cc484eba84b02961418af4f6ce68615fae7ddc941d724e3a8fa4da",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 43437,
+                "storedHash": "0000000069daa4ddc6fd766ad8ec37c4e569b03a60f367ea3f0bcf1a512ddd6c",
+                "nodeHash": "0000000069daa4ddc6fd766ad8ec37c4e569b03a60f367ea3f0bcf1a512ddd6c",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44322,
+                "storedHash": "00000000326518622119dcca7259dc66d0e98aca23b8d6cb5e5d01f88091dc5c",
+                "nodeHash": "00000000326518622119dcca7259dc66d0e98aca23b8d6cb5e5d01f88091dc5c",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44323,
+                "storedHash": "0000000042aac8f7f0c9b74a08e74a431a561eca2189f75f4c7440e2795345ba",
+                "nodeHash": "0000000042aac8f7f0c9b74a08e74a431a561eca2189f75f4c7440e2795345ba",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44324,
+                "storedHash": "000000006630df5c6a833d24a9dc4a607e026fa6796084c3dbe9b4f31f241605",
+                "nodeHash": "000000006630df5c6a833d24a9dc4a607e026fa6796084c3dbe9b4f31f241605",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44332,
+                "storedHash": "000000000a23de1f34651703be597a42e2117efbab17b7949ffd44502d8da56e",
+                "nodeHash": "000000000a23de1f34651703be597a42e2117efbab17b7949ffd44502d8da56e",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44333,
+                "storedHash": "000000003d4b555f3b66cac4a1ad2ae94000e228b2996a9ef60d68a95b85b8cc",
+                "nodeHash": "000000003d4b555f3b66cac4a1ad2ae94000e228b2996a9ef60d68a95b85b8cc",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44334,
+                "storedHash": "0000000011106bef79ced279b98c81e80dc4b661b87e07dc7e6c368e7964ae46",
+                "nodeHash": "0000000011106bef79ced279b98c81e80dc4b661b87e07dc7e6c368e7964ae46",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44553,
+                "storedHash": "000000006edc0da127e790ace22e236d2b8c9dbb78003a38596e6c3d4127166c",
+                "nodeHash": "000000006edc0da127e790ace22e236d2b8c9dbb78003a38596e6c3d4127166c",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44554,
+                "storedHash": "000000002183801aab921b422deac82bd6c582c2f0b48884164d453de809058d",
+                "nodeHash": "000000002183801aab921b422deac82bd6c582c2f0b48884164d453de809058d",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 44555,
+                "storedHash": "00000000128d25fcf0eab705777c8d9af0cf601af10f0660e9fb8991823eb11f",
+                "nodeHash": "00000000128d25fcf0eab705777c8d9af0cf601af10f0660e9fb8991823eb11f",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 55333,
+                "storedHash": "000000005290b5b751cc7fa9c95d1f86414a29d55e7831344cf6373ba6891ca2",
+                "nodeHash": "000000005290b5b751cc7fa9c95d1f86414a29d55e7831344cf6373ba6891ca2",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 55678,
+                "storedHash": "0000000067ff0af5b5fa8b24a41c923c7b356a10b75d378e79b13338af8c2ae8",
+                "nodeHash": "0000000067ff0af5b5fa8b24a41c923c7b356a10b75d378e79b13338af8c2ae8",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 55679,
+                "storedHash": "000000000eb8301ea42960343dea9f678f12ec1dcb031ce97ec615b073033c77",
+                "nodeHash": "000000000eb8301ea42960343dea9f678f12ec1dcb031ce97ec615b073033c77",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 77454,
+                "storedHash": "000000004f2da664edb41bf37901ec2f4be039f1a42e3cbd4cec1b0d7b80c4dd",
+                "nodeHash": "000000004f2da664edb41bf37901ec2f4be039f1a42e3cbd4cec1b0d7b80c4dd",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 77455,
+                "storedHash": "0000000049f0e615ce81ad842688c4c7c8b15198e8832465d397335a47f285f2",
+                "nodeHash": "0000000049f0e615ce81ad842688c4c7c8b15198e8832465d397335a47f285f2",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 77458,
+                "storedHash": "000000005c97cf6fbbe0b5d128d0d1d8fcc2412ab69e21ef20f40707cfff1c1b",
+                "nodeHash": "000000005c97cf6fbbe0b5d128d0d1d8fcc2412ab69e21ef20f40707cfff1c1b",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 234234,
+                "storedHash": "000000000fde8f4e0e2d7a89a51457b3ca7f9f4bf4eba3fa36792bf713a712ce",
+                "nodeHash": "000000000fde8f4e0e2d7a89a51457b3ca7f9f4bf4eba3fa36792bf713a712ce",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 234324,
+                "storedHash": "0000000012f9498aaadb88b5bf4df5f8944a7b6ee60aa04e79b95779c72d76b7",
+                "nodeHash": "0000000012f9498aaadb88b5bf4df5f8944a7b6ee60aa04e79b95779c72d76b7",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 234325,
+                "storedHash": "000000001179b91a15030a5392515f1416945bb325345260fcbe41b79dc56662",
+                "nodeHash": "000000001179b91a15030a5392515f1416945bb325345260fcbe41b79dc56662",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 234326,
+                "storedHash": "000000000ba74e3a906363cb6965fb56810457510a4027c19e24d722cb06f97b",
+                "nodeHash": "000000000ba74e3a906363cb6965fb56810457510a4027c19e24d722cb06f97b",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 324324,
+                "storedHash": "0000000008fa31c6f3f5b106a03e3cfb6066e10f9d4162dbc57dc3570a7f1c02",
+                "nodeHash": "0000000008fa31c6f3f5b106a03e3cfb6066e10f9d4162dbc57dc3570a7f1c02",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 334124,
+                "storedHash": "0000000008080477bc7750439ddc1c75605a607762d5ee8c06bafc7c246b07f7",
+                "nodeHash": "0000000008080477bc7750439ddc1c75605a607762d5ee8c06bafc7c246b07f7",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 423444,
+                "storedHash": "000000000179b72d581671895db85299a3fc53f7c9b0e138c2ce651cbe66c315",
+                "nodeHash": "000000000179b72d581671895db85299a3fc53f7c9b0e138c2ce651cbe66c315",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 665332,
+                "storedHash": "000000000169dc6b0df232818337e1c3d441359e09e5b39dd58d16eb2e75ac75",
+                "nodeHash": "000000000169dc6b0df232818337e1c3d441359e09e5b39dd58d16eb2e75ac75",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 665333,
+                "storedHash": "00000000024e32771260654f997be29db143e27fc881934cac241e257fb0774f",
+                "nodeHash": "00000000024e32771260654f997be29db143e27fc881934cac241e257fb0774f",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 665334,
+                "storedHash": "00000000008f86c283c42b8c8f5c89f85b1c3761f4ceb65dee6af3b7e7bcea0d",
+                "nodeHash": "00000000008f86c283c42b8c8f5c89f85b1c3761f4ceb65dee6af3b7e7bcea0d",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 887776,
+                "storedHash": "00000000021fcb40822eddef1021afd8f134d1bbc2bb85a029bc1afaa84c6fc1",
+                "nodeHash": "00000000021fcb40822eddef1021afd8f134d1bbc2bb85a029bc1afaa84c6fc1",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 999999,
+                "storedHash": "0000000001512dea98f49c5890d45f03b755bfea6adb4b284aa3eb3aa46af377",
+                "nodeHash": "0000000001512dea98f49c5890d45f03b755bfea6adb4b284aa3eb3aa46af377",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 2353578,
+                "storedHash": "0000000000b0d78e05068663bb4ccbd25bfd80e18ae47b37e83877c4db79cdab",
+                "nodeHash": "0000000000b0d78e05068663bb4ccbd25bfd80e18ae47b37e83877c4db79cdab",
+                "status": "match"
+            },
+            {
+                "zcashHeight": 3373050,
+                "storedHash": "000000000066bdfcba5eea4e824db36b804b7709d93852e34ffaf6f1c08acceb",
+                "nodeHash": "000000000066bdfcba5eea4e824db36b804b7709d93852e34ffaf6f1c08acceb",
+                "status": "match"
+            }
+        ]
+    }
+}

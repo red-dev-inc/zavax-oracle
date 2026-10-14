@@ -1,6 +1,6 @@
 # 
 
-# ZavaX Oracle Servers Penetration Testing Report
+# Redbridge Oracle Servers Penetration Testing Report
 
 ## Executive Summary
 All servers were tested with multiple scanning and exploitation tools. All problems reported were verified to be false positives.
@@ -8,14 +8,14 @@ All servers were tested with multiple scanning and exploitation tools. All probl
 
 ## **Objective**
 
-This report details the pentesting activities performed on the servers  for the **ZavaX Oracle** project. The objective of the analysis was to identify open **ports**, active **services**, and possible **vulnerabilities** associated with these services, in order to strengthen the security of the systems.
+This report details the pentesting activities performed on the servers  for the **Redbridge Oracle** project. The objective of the analysis was to identify open **ports**, active **services**, and possible **vulnerabilities** associated with these services, in order to strengthen the security of the systems.
 
 **List of analyzed servers:**
 
 * **redbridge01** - 68.175.134.60 (New York Location 1)  
 * **redbridge02** - 67.241.72.63 (New York Location 2)  
 * **redbridge03** - 45.77.105.206 (Vultr, New Jersey)  
-* **redbridge04 / zavax-oracle.red.dev** - 96.30.192.77 (Vultr, Atlanta)  
+* **redbridge04 / redbridge-oracle.red.dev** - 96.30.192.77 (Vultr, Atlanta)  
 * **redbridge05** - 216.128.137.36 (Vultr, Dallas)  
 * **redbridge06** - 45.76.27.244 (Vultr, Chicago)  
 * **redbridge07** - 45.77.161.62 (Vultr, Miami)  
@@ -66,7 +66,7 @@ The analysis focused on identifying vulnerabilities related to open ports and th
 * **Vulnerabilities found :** No vulnerabilities
 
 
-### Server: redbridge04 / zavax-oracle.red.dev (96.30.192.77 - Atlanta)
+### Server: redbridge04 / redbridge-oracle.red.dev (96.30.192.77 - Atlanta)
 
 * **Subdomains Found:** None                                 
 * **Open Ports:** 443 (HTTPS), 14851(SSH)  
@@ -116,7 +116,7 @@ The analysis focused on identifying vulnerabilities related to open ports and th
 * **Detected Services:**  
   * **HTTPS:**  OpenResty web app server 1.25.3.2  
     * Supported Methods: GET HEAD POST OPTIONS  
-    * http-title: ZavaX Oracle  
+    * http-title: Redbridge Oracle  
 * **Vulnerabilities found (Note: Verified as a false positive):**   
   * **CVE2011-3192:** The Apache web server is vulnerable to a denial of service attack when numerous overlapping byte ranges are requested.  
     * References:  

@@ -1,0 +1,47 @@
+services:
+  zavax-node:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        AVALANCHEGO_VERSION: v1.15.0
+        VM_ID: sP6SrkPy8HGHCqRwuxuvCPPUKSxLX5hZtozvNPQxFsLfAZgiT
+    image: redbridge-oracle-node:v1.15.0
+    container_name: redbridge-oracle-node
+    restart: unless-stopped
+    ports:
+      # Staking/P2P — must be reachable from the internet. Bind to the host's
+      # public interface.
+      - "${AVAGO_STAKING_PORT:-9651}:${AVAGO_STAKING_PORT:-9651}"
+      # RPC — do NOT publish this beyond localhost/private network in production.
+      # Front it with the OpenResty RPC proxy described in
+      # security/deployment-notes.md instead of exposing it directly.
+      - "127.0.0.1:${AVAGO_HTTP_PORT:-9650}:${AVAGO_HTTP_PORT:-9650}"
+    environment:
+      AVAGO_NETWORK_ID: ${AVAGO_NETWORK_ID:-fuji}
+      AVAGO_HTTP_HOST: 0.0.0.0
+      AVAGO_HTTP_PORT: ${AVAGO_HTTP_PORT:-9650}
+      AVAGO_STAKING_PORT: ${AVAGO_STAKING_PORT:-9651}
+      AVAGO_TRACK_SUBNETS: ${AVAGO_TRACK_SUBNETS:-EAGjhetxF6gAo3AhYCFuw5e1vJbVY2QMNNHabrubeuBvUjBfj}
+      AVAGO_PUBLIC_IP_RESOLUTION_SERVICE: opendns
+      REDBRIDGE_CHAIN_ID: ${REDBRIDGE_CHAIN_ID:-8iARaBqk63EqdbRu7KLu348JkfyFHgw2JkbfsbMWK2r9JE2Dq}
+      ZCASH_RPC_ENDPOINT: ${ZCASH_RPC_ENDPOINT:-http://127.0.0.1:8232}
+      ZCASH_RPC_USER: ${ZCASH_RPC_USER:-}
+      ZCASH_RPC_PASSWORD: ${ZCASH_RPC_PASSWORD:-}
+      ZCASH_CONFIRMATION_DEPTH: ${ZCASH_CONFIRMATION_DEPTH:-24}
+    volumes:
+      - avago-data:/root/.avalanchego
+    # Any avalanchego flag not surfaced above as an AVAGO_* env var can be added
+    # under `environment:` the same way (--flag-name -> AVAGO_FLAG_NAME), or passed
+    # as raw CLI args here — entrypoint.sh forwards them straight to avalanchego.
+    # See DEPLOYMENT.md §4.4 "Any other AvalancheGo flag".
+    # command: ["--log-level=debug"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:${AVAGO_HTTP_PORT:-9650}/ext/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  avago-data:

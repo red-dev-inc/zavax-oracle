@@ -1,0 +1,189 @@
+/* ── theme: zebra ──────────────────────────────────────────────────────────── */
+[data-theme="zebra"] {
+  --border: #F4B728;
+}
+
+[data-theme="zebra"] body {
+  background: url('../assets/themes/zebra/background-zebra.svg') center top / cover no-repeat fixed;
+}
+
+[data-theme="zebra"] .header-description p {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .title-text {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .card {
+  background: rgba(20, 20, 20, 0.6);
+}
+
+[data-theme="zebra"] .node-select {
+  color: #F4B728;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F4B728' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+[data-theme="zebra"] .node-select.placeholder {
+  color: var(--muted);
+}
+
+[data-theme="zebra"] .node-dropdown-list {
+  background: #141414;
+  border-color: #F4B728;
+}
+
+[data-theme="zebra"] .node-dropdown-option {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .node-dropdown-option:hover {
+  background: rgba(244, 183, 40, 0.1);
+}
+
+[data-theme="zebra"] .node-dropdown-option.selected {
+  background: rgba(244, 183, 40, 0.18);
+}
+
+[data-theme="zebra"] .height-input {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .card h2 {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .block-data-labels p {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .footer-link {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .results-header {
+  border-bottom-color: rgba(244, 183, 40, 0.2);
+}
+
+[data-theme="zebra"] .node-select:focus,
+[data-theme="zebra"] .height-input:focus {
+  border-color: #CF9C22;
+}
+
+[data-theme="zebra"] .btn-primary {
+  background: #F4B728;
+  border-color: #F4B728;
+  color: #020202;
+}
+
+[data-theme="zebra"] .btn-primary:hover:not(:disabled) {
+  background: #CF9C22;
+  border-color: #CF9C22;
+}
+
+[data-theme="zebra"] .wallet-btn,
+[data-theme="zebra"] .wallet-btn.connected {
+  background: transparent;
+  border-color: #F4B728;
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .wallet-btn:hover,
+[data-theme="zebra"] .wallet-btn.connected:hover {
+  background: transparent;
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .tx-feedback .label {
+  color: #F4B728;
+  background: rgba(244, 183, 40, 0.15);
+}
+
+[data-theme="zebra"] .tx-feedback .mono.small {
+  color: #F4B728;
+  opacity: 0.8;
+}
+
+[data-theme="zebra"] .btn-ghost {
+  border-color: rgba(244, 183, 40, 0.35);
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .btn-ghost:hover:not(:disabled) {
+  border-color: #F4B728;
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .dot.green {
+  background: #F4B728;
+  box-shadow: 0 0 4px rgba(244, 183, 40, 0.8);
+}
+
+[data-theme="zebra"] .height-block {
+  background: rgba(244, 183, 40, 0.1);
+  border-color: rgba(244, 183, 40, 0.8);
+}
+
+[data-theme="zebra"] .json-block {
+  background: rgba(244, 183, 40, 0.1);
+  border-color: rgba(244, 183, 40, 0.8);
+}
+
+[data-theme="zebra"] .height-label {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .status-badge.accepted,
+[data-theme="zebra"] .status-badge.pending,
+[data-theme="zebra"] .status-badge.not_found {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .field-row .field-key,
+[data-theme="zebra"] .field-row .field-val,
+[data-theme="zebra"] .data-section-label,
+[data-theme="zebra"] .json-block {
+  color: #F4B728;
+}
+
+[data-theme="zebra"] .bg-shapes {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+[data-theme="zebra"] .shape-38 {
+  position: absolute;
+  top: -3.52vh;
+  left: -40.26vw;
+  width: 95.19vw;
+  height: auto;
+}
+
+[data-theme="zebra"] .shape-32 {
+  position: absolute;
+  top: 45.19vh;
+  left: 0;
+  width: 106.09vw;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  [data-theme="zebra"] .shape-38 {
+    top: auto;
+    bottom: -45vw;
+    left: -38vw;
+    width: 105vw;
+    height: auto;
+  }
+
+  [data-theme="zebra"] .shape-32 {
+    top: auto;
+    bottom: -20vw;
+    left: 0;
+    width: 150vw;
+    height: auto;
+  }
+}
